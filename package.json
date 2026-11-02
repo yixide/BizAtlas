@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "node scripts/start.mjs",
     "dev:example": "node scripts/start.mjs --data examples/library/.bizatlas",
-    "dev:local": "node scripts/start.mjs --local",
     "build": "vue-tsc --noEmit && vite build",
     "typecheck": "vue-tsc --noEmit",
     "validate": "node scripts/validate.mjs",

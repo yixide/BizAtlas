@@ -12,8 +12,11 @@ description: 读一个业务系统的源码，生成或更新 BizAtlas 业务地
 下文的 `<BizAtlas>` 指 BizAtlas 仓库的本地目录，校验和启动查看器的命令都要在这个目录下运行。按顺序找：
 
 1. 用户说过的位置。
-2. 用户主目录下的 `BizAtlas`（Windows 为 `%USERPROFILE%\BizAtlas`）。
-3. 都没有：按仓库的 [INSTALL.md](https://github.com/yixide/BizAtlas/blob/main/INSTALL.md) 把它装到用户主目录下，再继续。
+2. 本 skill 目录下 `home.txt` 里写的路径（安装时写入）。
+3. 用户主目录下的 `BizAtlas`（Windows 为 `%USERPROFILE%\BizAtlas`）。
+4. 都没有：按仓库的 [INSTALL.md](https://github.com/yixide/BizAtlas/blob/main/INSTALL.md) 安装，再继续。
+
+BizAtlas 是所有项目共用的一份本机工具，不要装进业务项目里；多个项目的地图都登记到它的 `.local/projects.json`，在同一个查看器里切换（见「收尾」）。
 
 数据协议以 BizAtlas 仓库里的两份文件为准，动手前先读：
 
@@ -28,15 +31,20 @@ description: 读一个业务系统的源码，生成或更新 BizAtlas 业务地
 2. **证据必须真实**。`confidence: "confirmed"` 必须带至少一条 `{file, line}` 证据，行号指向真能支撑这条信息的那一行（建表语句、实体类、外键字段、控制器方法）。找不到证据就标 `inferred`，证据可以为空数组。
 3. **AI 归纳的一律是推断**。对象的业务作用、流程顺序、读写范围这类靠理解得出的结论，保留 `inferred`。「已确认」只表示代码支持，不表示线上验证过。
 4. **说业务话**。名称、说明、标签写给不看代码的人看：「借阅证」而不是 `reader_card`，「挂失」而不是 `UpdateStatus`。表名、方法名只出现在 `tableName`、`http`、`method`、证据里。
-5. **私有数据不外泄**。真实项目的地图放在源码仓库自己的目录，或 BizAtlas 的 `.local/`（已被忽略），不要放进 `examples/`。
+5. **私有数据不外泄**。真实项目的地图默认放 BizAtlas 的 `.local/`（已被 Git 忽略）；用户明确同意才放进源码仓库；任何时候都不要放进 `examples/`。
 
 ## 第 0 步：先问清楚
 
 开始前和用户确认（已经说过的不用再问）：
 
 - 源码根目录在哪；只看其中哪些模块（大项目建议先挑一两个核心领域做第一版）。
-- 输出目录：默认 `<源码根>/.bizatlas/`；不想放进源码仓库就放 `<BizAtlas>/.local/<项目名>/.bizatlas/`。
+- 项目标识：短英文小写，如 `my-app`，默认取源码根目录名；用来登记和切换项目。
+- 地图放在哪，**把差别讲给用户听再让用户选**：
+  - 默认 `<BizAtlas>/.local/<项目标识>/.bizatlas/`：只留在本机，不进业务项目的仓库。
+  - `<源码根>/.bizatlas/`：会跟着业务代码一起提交，适合团队共享。
 - 界面语言：默认中文。
+
+生成脚本放在地图目录旁边（`.bizatlas/` 的上一级），跟着地图走。
 
 ## 第 1 步：摸清项目
 
@@ -125,11 +133,16 @@ export function ev(file, needle) {
 ## 收尾
 
 1. 在 `<BizAtlas>` 目录下 `npm run validate -- <输出目录>` 通过。
-2. 在 `<BizAtlas>` 目录下后台启动查看器，把终端里打印的地址（默认 http://127.0.0.1:5173）告诉用户：
+2. 登记项目：在 `<BizAtlas>/.local/projects.json` 的 `projects` 数组里加一条（同 `id` 已存在就更新，别动别的项目；文件不存在就新建）：
 
-   ```bash
-   npm run dev -- --data <输出目录> --source <源码根>
+   ```json
+   { "projects": [
+     { "id": "my-app", "name": "我的应用", "dataDir": "D:/work/my-app/.bizatlas", "sourceDir": "D:/work/my-app" }
+   ] }
    ```
 
-   路径用绝对路径。`--source` 可选，配了才能用界面上的「问 AI」。
-3. 向用户汇报：整理了几个领域、多少对象 / 关系 / 表 / 功能，哪些部分是推断、哪些模块还没覆盖，建议重点人工核对的地方。
+   路径用绝对路径（放在 `.local/` 下的也可以写相对 `<BizAtlas>` 的路径）。`sourceDir` 配了才能用界面上的「问 AI」。
+3. 打开查看器：所有登记的项目共用一个查看器，左上角下拉切换。
+   - 先看 http://127.0.0.1:5173 是否已有查看器在跑：在跑就让用户刷新页面，在左上角选这个项目。
+   - 没在跑：在 `<BizAtlas>` 目录下后台运行 `npm run dev -- --project <项目标识>`，把终端里打印的地址告诉用户。
+4. 向用户汇报：整理了几个领域、多少对象 / 关系 / 表 / 功能，哪些部分是推断、哪些模块还没覆盖，建议重点人工核对的地方。

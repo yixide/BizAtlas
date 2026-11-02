@@ -42,7 +42,7 @@ export function askPlugin() {
         if (req.method !== 'POST') { res.statusCode = 405; res.end(); return; }
         if (!cwd || !existsSync(cwd)) {
           res.statusCode = 400;
-          res.end('没有配置源码目录：在 .local/atlas.json 里加 "sourceDir"，或启动时加 --source <目录>');
+          res.end('没有配置源码目录：在 .local/projects.json 里给这个项目加 "sourceDir"，或启动时加 --source <目录>');
           return;
         }
         let body = '';

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import projects from 'virtual:atlas-projects';
 import { actions, colorOf, functions, map, sourceOf, statsOf, ui, type Tab } from './store';
 
 const q = computed(() => ui.query.trim());
@@ -19,12 +20,26 @@ function openRow(i: { o: { id: string }; hits: { group: string }[] }) {
   actions.open(i.o.id, hit ? { module: hit.group, source: sourceOf(hit) } : {});
 }
 const openTab = (id: string, tab: Tab) => actions.open(id, { tab });
+
+/** 多项目：开发服务器换一份地图后整页刷新 */
+const switching = ref(false);
+async function switchTo(id: string) {
+  switching.value = true;
+  const res = await fetch('/__atlas/project', { method: 'POST', body: JSON.stringify({ id }) }).catch(() => undefined);
+  if (res?.ok) { location.reload(); return; }
+  alert(res ? await res.text() : '切换失败：开发服务器没响应');
+  switching.value = false;
+}
 </script>
 
 <template>
   <aside class="list" :class="{ closed: !ui.listOpen }">
     <header>
       <div>
+        <select v-if="projects.list.length > 1" class="project" :value="projects.current" :disabled="switching"
+          title="切换项目" @change="switchTo(($event.target as HTMLSelectElement).value)">
+          <option v-for="p in projects.list" :key="p.id" :value="p.id">{{ p.name }}</option>
+        </select>
         <b>{{ map.project.name }}</b>
         <small>{{ map.objects.length }} 个对象 · {{ map.relations.length }} 条关系</small>
       </div>

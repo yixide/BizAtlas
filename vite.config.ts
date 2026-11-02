@@ -7,9 +7,11 @@ import { existsSync, readFileSync } from 'node:fs';
 import { readMap } from './scripts/data.mjs';
 // @ts-expect-error 同上
 import { askPlugin } from './scripts/ask.mjs';
+// @ts-expect-error 同上
+import { projectsPlugin } from './scripts/projects.mjs';
 
 export default defineConfig({
-  plugins: [vue(), askPlugin(), {
+  plugins: [vue(), askPlugin(), projectsPlugin(), {
     name: 'atlas-map',
     resolveId(id) { if (['virtual:atlas-map', 'virtual:atlas-functions', 'virtual:atlas-process', 'virtual:atlas-tables'].includes(id)) return '\0' + id; },
     load(id) {

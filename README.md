@@ -22,7 +22,15 @@
 按 https://github.com/yixide/BizAtlas 的 INSTALL.md 安装 BizAtlas，然后给这个项目画业务地图
 ```
 
-AI 会自己下载、安装好 BizAtlas 和配套 skill，然后问你要整理哪些模块、地图放在哪里，整理完给你一个本地地址打开看。
+AI 会先问你 BizAtlas 装在哪（默认装在用户主目录下），自己下载、安装好 BizAtlas 和配套 skill，再问你要整理哪些模块、地图放在哪里，整理完给你一个本地地址打开看。换个项目再说一次同样的话，它会用已装好的那份，把新项目登记进同一个查看器。
+
+不想用了，同样一句话卸载：
+
+```text
+按 https://github.com/yixide/BizAtlas 的 INSTALL.md 卸载 BizAtlas
+```
+
+AI 会先列出要删的东西请你确认：只留在本机的地图会问你要不要备份，放在项目里的地图默认保留。
 
 > AI 代理请直接阅读 [INSTALL.md](INSTALL.md)。
 
@@ -95,33 +103,46 @@ cp -r skills/bizatlas ~/.claude/skills/
 
 AI 会依次完成：
 
-1. 确认源码范围和输出目录（默认在你的项目下建 `.bizatlas/`）。
+1. 确认源码范围和地图放在哪：默认放在 BizAtlas 的 `.local/` 下，只留在本机；你同意的话也可以放进项目的 `.bizatlas/`，跟着代码提交给团队。
 2. 整理领域、业务对象、表目录、对象关系和主要业务流程，写入 `map.json` 并校验。
 3. 补充功能清单 `functions.json`、表字段 `tables.json`、操作先后 `process.json`。
-4. 汇报覆盖了多少内容、哪些是推断、哪些需要人工核对。
+4. 把项目登记到 BizAtlas，打开查看器，汇报覆盖了多少内容、哪些是推断、哪些需要人工核对。
 
 建议先挑一两个核心领域出第一版，看过觉得对路再扩展。代码有变动时，对 AI 说「更新业务地图」，它会核对证据并补齐新增的内容。
 
+### 多个项目
+
+BizAtlas 在本机只装一份，所有项目共用。每个项目的地图登记在 BizAtlas 根目录的 `.local/projects.json`（`.local/` 已被 Git 忽略），AI 整理完会自己登记：
+
+```json
+{
+  "projects": [
+    { "id": "my-app", "name": "我的应用", "dataDir": ".local/my-app/.bizatlas", "sourceDir": "D:/work/my-app" },
+    { "id": "shop", "name": "商城", "dataDir": "D:/work/shop/.bizatlas", "sourceDir": "D:/work/shop" }
+  ]
+}
+```
+
+`dataDir` 可以在 BizAtlas 的 `.local/` 下，也可以在项目自己的仓库里；`sourceDir` 可选，配了才能使用「问 AI」。
+
 ### 打开你的地图
 
-回到 BizAtlas 仓库目录：
+在 BizAtlas 目录下：
+
+```bash
+npm run dev
+```
+
+页面左上角下拉切换项目，下次打开默认是上次看的那个。想直接打开某个项目：
+
+```bash
+npm run dev -- --project my-app
+```
+
+没登记的目录也可以临时打开：
 
 ```bash
 npm run dev -- --data D:/work/my-app/.bizatlas --source D:/work/my-app
-```
-
-`--source` 是可选的，配了才能使用「问 AI」。也可以用环境变量 `ATLAS_DATA_DIR` 指定数据目录。
-
-经常打开同一份地图的话，在 BizAtlas 根目录建 `.local/atlas.json`（`.local/` 已被 Git 忽略，适合放私有项目的地图）：
-
-```json
-{ "dataDir": ".local/my-app/.bizatlas", "sourceDir": "D:/work/my-app" }
-```
-
-之后只需：
-
-```bash
-npm run dev:local
 ```
 
 修改数据文件后页面会自动刷新。
@@ -143,7 +164,7 @@ npm run dev:local
 ## 「问 AI」的配置
 
 1. 安装并登录 [Codex CLI](https://github.com/openai/codex)，确保命令行里能直接运行 `codex`。
-2. 启动时用 `--source` 或 `.local/atlas.json` 的 `sourceDir` 指定源码目录。
+2. 在 `.local/projects.json` 里给项目配 `sourceDir`，或启动时用 `--source` 指定源码目录。
 
 没配置源码目录时，页面上不会出现「问 AI」。Codex 以只读沙箱运行，不会修改你的代码；它的耗时和费用由你自己的 Codex 账号承担。
 

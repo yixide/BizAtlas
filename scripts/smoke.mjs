@@ -50,7 +50,7 @@ try {
   }
 
   expect(errors).toEqual([]);
-  const denied = await page.request.get(baseURL + '/.local/atlas.json');
+  const denied = await page.request.get(baseURL + '/.local/projects.json');
   expect(denied.status()).toBe(403);
   console.log(`浏览器验收通过：地图绘制、搜索、打开对象卡片、切换页签、流程图；截图目录 ${output}`);
 } finally { await browser.close(); }
