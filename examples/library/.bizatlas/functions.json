@@ -1,0 +1,36 @@
+{
+  "library": [
+    { "name": "图书馆列表", "group": "图书馆档案", "kind": "query", "kindName": "查询", "http": "GET /library/list", "method": "List", "file": "src/controllers/LibraryController.cs", "line": 18, "source": "page", "callers": ["views/library/index.vue"] },
+    { "name": "新增图书馆", "group": "图书馆档案", "kind": "add", "kindName": "新增", "http": "POST /library/add", "method": "Add", "file": "src/controllers/LibraryController.cs", "line": 30, "source": "page", "callers": ["views/library/index.vue"] },
+    { "name": "图书馆下拉选项", "group": "图书馆档案", "kind": "query", "kindName": "查询", "http": "GET /library/options", "method": "Options", "file": "src/controllers/LibraryController.cs", "line": 44, "source": "quick", "callers": ["components/LibrarySelect.vue"] }
+  ],
+  "branch": [
+    { "name": "分馆列表", "group": "分馆档案", "kind": "query", "kindName": "查询", "http": "GET /branch/list", "method": "List", "file": "src/controllers/BranchController.cs", "line": 16, "source": "page", "callers": ["views/branch/index.vue"] },
+    { "name": "新增分馆", "group": "分馆档案", "kind": "add", "kindName": "新增", "http": "POST /branch/add", "method": "Add", "file": "src/controllers/BranchController.cs", "line": 28, "source": "page", "callers": ["views/branch/index.vue"] },
+    { "name": "编辑分馆", "group": "分馆档案", "kind": "update", "kindName": "编辑", "http": "PUT /branch/update", "method": "Update", "file": "src/controllers/BranchController.cs", "line": 41, "source": "page", "callers": ["views/branch/index.vue"] }
+  ],
+  "reader": [
+    { "name": "读者列表", "group": "读者档案", "kind": "query", "kindName": "查询", "http": "GET /reader/list", "method": "List", "file": "src/controllers/ReaderController.cs", "line": 15, "source": "page", "callers": ["views/reader/index.vue"] },
+    { "name": "登记读者", "group": "读者档案", "kind": "add", "kindName": "新增", "http": "POST /reader/add", "method": "Add", "file": "src/controllers/ReaderController.cs", "line": 27, "source": "page", "callers": ["views/reader/index.vue"] },
+    { "name": "导出读者", "group": "读者档案", "kind": "export", "kindName": "导出", "http": "GET /reader/export", "method": "Export", "file": "src/controllers/ReaderController.cs", "line": 52, "source": "page", "callers": ["views/reader/index.vue"] }
+  ],
+  "card": [
+    { "name": "办理借阅证", "group": "借阅证", "kind": "add", "kindName": "新增", "http": "POST /card/add", "method": "Add", "file": "src/controllers/CardController.cs", "line": 22, "source": "page", "callers": ["views/card/index.vue"] },
+    { "name": "挂失", "group": "借阅证", "kind": "state", "kindName": "状态变更", "http": "POST /card/lost", "method": "ReportLost", "file": "src/controllers/CardController.cs", "line": 38, "source": "page", "callers": ["views/card/index.vue"] },
+    { "name": "一卡通回调", "group": "外部对接", "kind": "record", "kindName": "上报同步", "http": "POST /card/callback", "method": "Callback", "file": "src/controllers/CardController.cs", "line": 60, "source": "ext" }
+  ],
+  "book": [
+    { "name": "书目列表", "group": "书目", "kind": "query", "kindName": "查询", "http": "GET /book/list", "method": "List", "file": "src/controllers/BookController.cs", "line": 14, "source": "page", "callers": ["views/book/index.vue"] },
+    { "name": "新增书目", "group": "书目", "kind": "add", "kindName": "新增", "http": "POST /book/add", "method": "Add", "file": "src/controllers/BookController.cs", "line": 26, "source": "page", "callers": ["views/book/index.vue"] },
+    { "name": "批量导入书目", "group": "书目", "kind": "import", "kindName": "导入", "http": "POST /book/import", "method": "Import", "file": "src/controllers/BookController.cs", "line": 48, "source": "page", "callers": ["views/book/import.vue"] }
+  ],
+  "copy": [
+    { "name": "馆藏册入库", "group": "入藏", "kind": "add", "kindName": "新增", "http": "POST /copy/add", "method": "Add", "file": "src/controllers/CopyController.cs", "line": 20, "source": "page", "callers": ["views/copy/index.vue"] },
+    { "name": "按条码查询", "group": "入藏", "kind": "query", "kindName": "查询", "http": "GET /copy/by-barcode", "method": "ByBarcode", "file": "src/controllers/CopyController.cs", "line": 35, "source": "quick", "callers": ["views/desk/index.vue"] }
+  ],
+  "loan": [
+    { "name": "借出图书", "group": "借还台", "kind": "add", "kindName": "新增", "http": "POST /loan/borrow", "method": "Borrow", "file": "src/controllers/LoanController.cs", "line": 24, "source": "page", "callers": ["views/desk/index.vue"] },
+    { "name": "归还图书", "group": "借还台", "kind": "state", "kindName": "状态变更", "http": "POST /loan/return", "method": "Return", "file": "src/controllers/LoanController.cs", "line": 47, "source": "page", "callers": ["views/desk/index.vue"] },
+    { "name": "逾期清单", "group": "借阅查询", "kind": "query", "kindName": "查询", "http": "GET /loan/overdue", "method": "Overdue", "file": "src/controllers/LoanController.cs", "line": 70, "source": "unused" }
+  ]
+}

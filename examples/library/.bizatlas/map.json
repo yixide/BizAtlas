@@ -1,0 +1,822 @@
+{
+  "schemaVersion": "0",
+  "project": {
+    "name": "云杉图书馆 · 虚构示例",
+    "description": "从分馆与读者出发，理解办证、借阅与馆藏组织。所有业务、表名与规则均为虚构设计。",
+    "generatedAt": "2026-10-31T10:00:00Z"
+  },
+  "domains": [
+    {
+      "id": "operations",
+      "name": "图书馆运营",
+      "description": "图书馆、分馆与工作人员。"
+    },
+    {
+      "id": "circulation",
+      "name": "读者与借阅",
+      "description": "读者资格、借阅与预约。"
+    },
+    {
+      "id": "collection",
+      "name": "馆藏与资源",
+      "description": "书目、作者、分类与实体馆藏。"
+    }
+  ],
+  "objects": [
+    {
+      "id": "library",
+      "name": "图书馆",
+      "domainId": "operations",
+      "summary": {
+        "text": "协调各分馆的馆藏与读者服务，统一借阅规则和服务范围。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-library",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "core",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "branch",
+      "name": "分馆",
+      "domainId": "operations",
+      "summary": {
+        "text": "图书馆的实体服务场所，管理本馆工作人员、书架与可借阅馆藏。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-branch",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "core",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "staff",
+      "name": "工作人员",
+      "domainId": "operations",
+      "summary": {
+        "text": "隶属分馆，为读者办理借还书、入藏与服务咨询。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-staff",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "normal",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "reader",
+      "name": "读者",
+      "domainId": "circulation",
+      "summary": {
+        "text": "在分馆注册并接受服务的人，持借阅证借书、还书和预约馆藏。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-reader",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "core",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "card",
+      "name": "借阅证",
+      "domainId": "circulation",
+      "summary": {
+        "text": "识别读者并承载借阅资格，可以启用、挂失或停用。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-card",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "normal",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "loan",
+      "name": "借阅记录",
+      "domainId": "circulation",
+      "summary": {
+        "text": "记录一册图书从借出到归还的过程，保存应还日期与当前状态。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-loan",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [
+        {
+          "text": "借阅证有效且馆藏册处于可借状态，才能办理借出。",
+          "confidence": "inferred",
+          "evidence": []
+        }
+      ],
+      "importance": "normal",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "reservation",
+      "name": "预约",
+      "domainId": "circulation",
+      "summary": {
+        "text": "读者针对图书提出的借阅排队申请，到书后可以转为借阅。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-reservation",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "normal",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "book",
+      "name": "图书",
+      "domainId": "collection",
+      "summary": {
+        "text": "代表一种出版物的书目信息，记录书名、作者和分类，本身不代表可出借的实体。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-book",
+          "role": "primary"
+        },
+        {
+          "tableId": "t-authorship",
+          "role": "supporting"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "normal",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "copy",
+      "name": "馆藏册",
+      "domainId": "collection",
+      "summary": {
+        "text": "一本可识别的实体图书，归属分馆、摆放在书架上，并具有可借、借出或维护状态。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-copy",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "core",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "author",
+      "name": "作者",
+      "domainId": "collection",
+      "summary": {
+        "text": "创作图书的人，一本图书可以有多位作者。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-author",
+          "role": "primary"
+        },
+        {
+          "tableId": "t-authorship",
+          "role": "supporting"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "normal",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "category",
+      "name": "图书分类",
+      "domainId": "collection",
+      "summary": {
+        "text": "组织书目与查找路径的主题分类，帮助读者按主题浏览馆藏。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-category",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "normal",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "shelf",
+      "name": "书架",
+      "domainId": "collection",
+      "summary": {
+        "text": "分馆内存放馆藏册的位置，帮助读者和工作人员定位实体图书。",
+        "confidence": "inferred",
+        "evidence": []
+      },
+      "tableRefs": [
+        {
+          "tableId": "t-shelf",
+          "role": "primary"
+        }
+      ],
+      "prerequisites": [],
+      "importance": "normal",
+      "confidence": "inferred",
+      "evidence": []
+    }
+  ],
+  "relations": [
+    {
+      "id": "r-library-branch",
+      "source": "library",
+      "target": "branch",
+      "type": "owns",
+      "label": "下属",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-branch-staff",
+      "source": "branch",
+      "target": "staff",
+      "type": "owns",
+      "label": "聘用",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-branch-reader",
+      "source": "branch",
+      "target": "reader",
+      "type": "owns",
+      "label": "服务",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-branch-copy",
+      "source": "branch",
+      "target": "copy",
+      "type": "owns",
+      "label": "拥有",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-branch-shelf",
+      "source": "branch",
+      "target": "shelf",
+      "type": "owns",
+      "label": "设置",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-reader-card",
+      "source": "reader",
+      "target": "card",
+      "type": "owns",
+      "label": "持有",
+      "cardinality": "1-1",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-reader-loan",
+      "source": "reader",
+      "target": "loan",
+      "type": "owns",
+      "label": "办理",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-reader-reservation",
+      "source": "reader",
+      "target": "reservation",
+      "type": "owns",
+      "label": "提出",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-book-copy",
+      "source": "book",
+      "target": "copy",
+      "type": "owns",
+      "label": "入藏",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-book-author",
+      "source": "book",
+      "target": "author",
+      "type": "associates",
+      "label": "创作",
+      "cardinality": "n-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-category-book",
+      "source": "category",
+      "target": "book",
+      "type": "owns",
+      "label": "收录",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-shelf-copy",
+      "source": "shelf",
+      "target": "copy",
+      "type": "owns",
+      "label": "存放",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-copy-loan",
+      "source": "copy",
+      "target": "loan",
+      "type": "associates",
+      "label": "借阅历史",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "r-book-reservation",
+      "source": "book",
+      "target": "reservation",
+      "type": "associates",
+      "label": "被预约",
+      "cardinality": "1-n",
+      "confidence": "inferred",
+      "evidence": []
+    }
+  ],
+  "tables": [
+    {
+      "id": "t-library",
+      "name": "图书馆档案",
+      "tableName": "library",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-branch",
+      "name": "分馆档案",
+      "tableName": "branch",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-staff",
+      "name": "工作人员档案",
+      "tableName": "staff",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-reader",
+      "name": "读者档案",
+      "tableName": "reader",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-card",
+      "name": "借阅证",
+      "tableName": "reader_card",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-loan",
+      "name": "借阅记录",
+      "tableName": "loan",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-reservation",
+      "name": "图书预约",
+      "tableName": "reservation",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-book",
+      "name": "图书书目",
+      "tableName": "book",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-copy",
+      "name": "馆藏册",
+      "tableName": "book_copy",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-author",
+      "name": "作者档案",
+      "tableName": "author",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-category",
+      "name": "图书分类",
+      "tableName": "book_category",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-shelf",
+      "name": "书架档案",
+      "tableName": "shelf",
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "t-authorship",
+      "name": "图书作者关联",
+      "tableName": "book_author",
+      "confidence": "inferred",
+      "evidence": []
+    }
+  ],
+  "flows": [
+    {
+      "id": "f-register",
+      "name": "读者注册与办证",
+      "description": "在分馆建立读者资料，签发有效借阅证。",
+      "steps": [
+        {
+          "id": "register-1",
+          "description": "核对读者资料并选择服务分馆",
+          "objectIds": [
+            "reader",
+            "branch"
+          ],
+          "reads": [
+            "t-branch",
+            "t-reader"
+          ],
+          "writes": [],
+          "confidence": "inferred",
+          "evidence": []
+        },
+        {
+          "id": "register-2",
+          "description": "建立读者档案并签发借阅证",
+          "objectIds": [
+            "reader",
+            "card"
+          ],
+          "reads": [],
+          "writes": [
+            "t-reader",
+            "t-card"
+          ],
+          "confidence": "inferred",
+          "evidence": []
+        }
+      ],
+      "objectIds": [
+        "reader",
+        "branch",
+        "card"
+      ],
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "f-borrow",
+      "name": "办理图书借阅",
+      "description": "根据读者资格与馆藏状态完成借出，并记录应还日期。",
+      "steps": [
+        {
+          "id": "borrow-1",
+          "description": "查询读者并核验借阅证有效",
+          "objectIds": [
+            "reader",
+            "card"
+          ],
+          "reads": [
+            "t-reader",
+            "t-card"
+          ],
+          "writes": [],
+          "confidence": "inferred",
+          "evidence": []
+        },
+        {
+          "id": "borrow-2",
+          "description": "选择可借馆藏册并核对书目信息",
+          "objectIds": [
+            "copy",
+            "book"
+          ],
+          "reads": [
+            "t-copy",
+            "t-book"
+          ],
+          "writes": [],
+          "confidence": "inferred",
+          "evidence": []
+        },
+        {
+          "id": "borrow-3",
+          "description": "登记借阅并更新馆藏册为借出状态",
+          "objectIds": [
+            "reader",
+            "loan",
+            "copy",
+            "staff"
+          ],
+          "reads": [
+            "t-reader",
+            "t-copy"
+          ],
+          "writes": [
+            "t-loan",
+            "t-copy"
+          ],
+          "confidence": "inferred",
+          "evidence": []
+        }
+      ],
+      "objectIds": [
+        "reader",
+        "card",
+        "copy",
+        "book",
+        "loan",
+        "staff"
+      ],
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "f-return",
+      "name": "办理图书归还",
+      "description": "核对借阅记录，更新归还时间与馆藏册可借状态。",
+      "steps": [
+        {
+          "id": "return-1",
+          "description": "扫描馆藏册并查找未归还记录",
+          "objectIds": [
+            "copy",
+            "loan"
+          ],
+          "reads": [
+            "t-copy",
+            "t-loan"
+          ],
+          "writes": [],
+          "confidence": "inferred",
+          "evidence": []
+        },
+        {
+          "id": "return-2",
+          "description": "确认归还并恢复馆藏册可借状态",
+          "objectIds": [
+            "reader",
+            "copy",
+            "loan",
+            "staff"
+          ],
+          "reads": [
+            "t-loan"
+          ],
+          "writes": [
+            "t-loan",
+            "t-copy"
+          ],
+          "confidence": "inferred",
+          "evidence": []
+        },
+        {
+          "id": "return-3",
+          "description": "将馆藏册放回对应书架",
+          "objectIds": [
+            "copy",
+            "shelf",
+            "branch"
+          ],
+          "reads": [
+            "t-shelf",
+            "t-branch"
+          ],
+          "writes": [
+            "t-copy"
+          ],
+          "confidence": "inferred",
+          "evidence": []
+        }
+      ],
+      "objectIds": [
+        "copy",
+        "loan",
+        "reader",
+        "staff",
+        "shelf",
+        "branch"
+      ],
+      "confidence": "inferred",
+      "evidence": []
+    },
+    {
+      "id": "f-reserve",
+      "name": "预约图书到馆",
+      "description": "读者选择书目排队预约，到书后确认分馆与馆藏册。",
+      "steps": [
+        {
+          "id": "reserve-1",
+          "description": "按分类或作者查找书目",
+          "objectIds": [
+            "book",
+            "author",
+            "category"
+          ],
+          "reads": [
+            "t-book",
+            "t-category",
+            "t-author",
+            "t-authorship"
+          ],
+          "writes": [],
+          "confidence": "inferred",
+          "evidence": []
+        },
+        {
+          "id": "reserve-2",
+          "description": "登记读者对该书目的预约",
+          "objectIds": [
+            "reader",
+            "book",
+            "reservation"
+          ],
+          "reads": [
+            "t-reader",
+            "t-book"
+          ],
+          "writes": [
+            "t-reservation"
+          ],
+          "confidence": "inferred",
+          "evidence": []
+        },
+        {
+          "id": "reserve-3",
+          "description": "馆藏册可用后更新预约为可取书状态",
+          "objectIds": [
+            "reservation",
+            "copy",
+            "branch"
+          ],
+          "reads": [
+            "t-copy",
+            "t-branch"
+          ],
+          "writes": [
+            "t-reservation"
+          ],
+          "confidence": "inferred",
+          "evidence": []
+        }
+      ],
+      "objectIds": [
+        "book",
+        "author",
+        "category",
+        "reader",
+        "reservation",
+        "copy",
+        "branch"
+      ],
+      "confidence": "inferred",
+      "evidence": []
+    }
+  ],
+  "layout": {
+    "positions": {
+      "library": {
+        "x": 100,
+        "y": 100
+      },
+      "branch": {
+        "x": 350,
+        "y": 100
+      },
+      "staff": {
+        "x": 600,
+        "y": 100
+      },
+      "reader": {
+        "x": 100,
+        "y": 460
+      },
+      "card": {
+        "x": 100,
+        "y": 310
+      },
+      "loan": {
+        "x": 320,
+        "y": 460
+      },
+      "reservation": {
+        "x": 320,
+        "y": 630
+      },
+      "book": {
+        "x": 600,
+        "y": 310
+      },
+      "copy": {
+        "x": 600,
+        "y": 460
+      },
+      "author": {
+        "x": 850,
+        "y": 310
+      },
+      "category": {
+        "x": 850,
+        "y": 460
+      },
+      "shelf": {
+        "x": 600,
+        "y": 630
+      }
+    }
+  }
+}

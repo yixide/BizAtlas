@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Project Atlas：业务优先、代码可追溯、AI 维护的本地项目地图。产品需求、技术选型及交互设计说明书。">
+<title>Project Atlas · 产品需求与技术方案说明书</title>
+<style>
+:root{--bg:#f5f7f8;--paper:#fff;--ink:#15232f;--ink2:#334554;--muted:#617481;--line:#dfe6e9;--accent:#087a72;--accent-2:#0e9c91;--tint:#e8f6f3;--dark:#112c36;--blue:#355fc1;--amber:#a4691b;--rose:#af4d5b;--radius:16px;--shadow:0 8px 30px rgba(20,45,53,.045)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:28px}body{margin:0;color:var(--ink);font-family:Inter,"SF Pro Text","Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);font-size:15px;line-height:1.78}a{color:#087b75;text-decoration:none}a:hover{text-decoration:underline}button,input{font:inherit}.app{display:grid;grid-template-columns:252px minmax(0,1fr);min-height:100vh}.aside{position:sticky;top:0;height:100vh;overflow-y:auto;background:#102a33;color:#d3e3e6;padding:26px 17px 24px;scrollbar-width:thin}.logo{display:flex;align-items:center;gap:12px;padding:8px 10px 19px;border-bottom:1px solid #29454b}.mark{width:37px;height:37px;border-radius:11px;background:linear-gradient(135deg,#2bd2b6,#4593d4);color:#083039;display:grid;place-items:center;font-weight:900;font-size:19px}.logo strong{font-size:16px;letter-spacing:-.5px}.logo small{display:block;font-size:10px;line-height:1.5;color:#86a9af;letter-spacing:1.1px}.nav-label{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;font-weight:800;color:#729ba2;padding:23px 10px 8px}.toc{display:block;padding:8px 12px;color:#bad0d3;font-size:12px;border-radius:9px;line-height:1.5;transition:background .15s}.toc:hover,.toc.active{background:#204950;color:#fff;text-decoration:none}.toc span{font-family:ui-monospace,Menlo,monospace;color:#64b9b2;margin-right:7px;font-size:10px}.aside-foot{margin:24px 9px 0;padding-top:15px;border-top:1px solid #284850;font-size:11px;color:#8daeb3}.main{min-width:0;padding:32px clamp(20px,4.5vw,75px) 80px}.content{max-width:1180px;margin:auto}.eyebrow{font-weight:700;color:var(--accent);letter-spacing:2.4px;font-size:11px;text-transform:uppercase}.hero{position:relative;overflow:hidden;background:var(--dark);padding:57px clamp(25px,5vw,64px) 50px;color:#fff;border-radius:23px;box-shadow:var(--shadow)}.hero:before{content:"";position:absolute;width:400px;height:400px;right:-130px;top:-180px;background:radial-gradient(circle,#27b5a055,transparent 72%);pointer-events:none}.hero:after{content:"";position:absolute;width:230px;height:230px;right:90px;bottom:-180px;border:1px solid #57a5a465;border-radius:50%;box-shadow:0 0 0 38px #3b9c9a10,0 0 0 85px #2fb8a710}.hero .eyebrow{color:#84d9cd}.hero h1{position:relative;font-size:clamp(38px,5vw,64px);line-height:1.15;margin:15px 0 10px;letter-spacing:-1.7px}.subtitle{font-size:clamp(16px,2vw,22px);font-weight:600;color:#d7f1ec}.hero p{max-width:790px;color:#b2cbd0;margin:22px 0 0;font-size:14px;line-height:1.9}.hero-meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:26px}.hero-meta span{font-size:11px;border:1px solid #51747c;background:#24434c;color:#e0f2f2;padding:6px 12px;border-radius:50px}.hero .stamp{position:relative;display:inline-block;margin-top:23px;font-size:11px;color:#8db0b4;letter-spacing:.3px}.section{margin-top:54px}.section-header{display:flex;align-items:center;gap:13px;margin-bottom:17px}.num{font-size:11px;font-weight:850;color:var(--accent);background:var(--tint);padding:7px 9px;border-radius:8px}.section h2{font-size:clamp(23px,2.4vw,30px);line-height:1.3;letter-spacing:-.5px;margin:0}.intro{font-size:15px;color:#465c69;max-width:960px;margin:0 0 23px}.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}.grid{display:grid;gap:15px}.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.card h3,.text-block h3{font-size:16px;margin:0 0 9px;line-height:1.45}.card h4{font-size:14px;margin:0 0 6px}.card p{margin:0;color:var(--ink2);font-size:13px}.card ul{padding-left:18px;margin:9px 0 0}.card li{padding:2px 0;font-size:13px;color:var(--ink2)}.problem{border-top:3px solid #c27b45}.p-num{font-family:ui-monospace,monospace;font-size:12px;color:#a46e3e;font-weight:800;display:block;margin-bottom:9px}.callout{padding:18px 22px;border:1px solid #b6e1da;background:#eaf8f5;border-left:4px solid var(--accent);border-radius:12px;font-weight:650;font-size:14px;color:#18554e;margin:22px 0}.callout.warn{background:#fff7e9;border-color:#f0ddbb;border-left-color:#cb9347;color:#77551e}.pill{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--line);background:#f7fafb;border-radius:60px;padding:4px 9px;color:#58707b;font-size:10px;font-weight:750}.pill.good{background:#e3f5f0;border-color:#bfe9dd;color:#126f60}.pill.orange{background:#fff2da;border-color:#f6dfb4;color:#9c6620}.pill.purple{background:#f1edff;border-color:#e0d7ff;color:#7152a0}.table-wrap{overflow:auto;border-radius:14px;border:1px solid var(--line);background:#fff;margin:18px 0}.table-wrap table{width:100%;border-collapse:collapse;text-align:left;min-width:680px;font-size:12.5px}.table-wrap th{background:#edf3f4;color:#45606a;font-size:11px;letter-spacing:.1px;font-weight:800}.table-wrap th,.table-wrap td{padding:12px 14px;border-bottom:1px solid #e6edee;vertical-align:top}.table-wrap tr:last-child td{border:0}.table-wrap td:first-child{font-weight:700;color:#213a42}.table-wrap td{color:#4e6169}.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}.layer{border:1px solid var(--line);padding:19px 20px;background:var(--paper);border-radius:14px;position:relative}.layer strong{display:block;font-size:15px}.layer p{font-size:12px;color:var(--muted);margin:5px 0 0}.arrow{text-align:center;color:#60988f;font-size:22px;height:34px}.archbox{max-width:850px;margin:auto}.layer.primary{background:#13333d;color:#fff;border-color:#13333d}.layer.primary p{color:#a5c8ca}.layer.private{background:#f5f7fa;border-style:dashed}.mini{font-size:12px;color:var(--muted)}.feature-list{display:grid;gap:14px}.feature{padding:18px 22px;border:1px solid var(--line);background:#fff;border-radius:14px;display:grid;grid-template-columns:70px 1fr;gap:16px;align-items:start}.feature .id{font:700 12px ui-monospace,Consolas,monospace;color:#078178;background:#e8f6f3;border-radius:8px;padding:7px 8px;text-align:center}.feature h3{font-size:15px;margin:0 0 5px}.feature p{font-size:13px;color:#516774;margin:0 0 7px}.feature .done{font-size:12px;color:#697c86}.mock{background:#eef3f5;border-radius:18px;border:1px solid #d0dce1;overflow:hidden;box-shadow:0 12px 36px rgba(27,57,66,.07)}.mock-toolbar{background:#fff;border-bottom:1px solid #dce6e9;padding:13px 17px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}.mock-brand{font-weight:850;font-size:13px;margin-right:12px;color:#17414a}.mock-search{flex:1;min-width:180px;border:1px solid #d3e0e3;border-radius:8px;padding:8px 12px;font-size:12px;outline:none;background:#f7fafb}.mock-search:focus{border-color:#16a095;background:#fff}.mock-mode{font-size:10px;border:1px solid #d2e0e1;border-radius:7px;padding:7px 9px;color:#66818a}.mock-body{display:grid;grid-template-columns:150px minmax(0,1fr) 215px;min-height:430px}.mock-nav{background:#f8fafb;border-right:1px solid #d7e1e4;padding:16px 10px}.mock-nav small{display:block;color:#8298a0;font-weight:800;letter-spacing:1px;font-size:9px;padding:5px 8px 12px}.mock-nav div{font-size:11px;color:#4d6a74;padding:9px 9px;border-radius:7px}.mock-nav div.on{background:#e0f2ef;color:#0b8178;font-weight:750}.mock-canvas{padding:14px 15px 21px;min-width:0}.canvas-top{display:flex;justify-content:space-between;gap:10px;align-items:center}.canvas-top b{font-size:12px}.canvas-top small{font-size:10px;color:#7a8b93}.domains{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:26px}.domain{background:#fff;border:1px solid #d1dfe2;border-radius:12px;padding:13px 12px;cursor:pointer;min-width:0;transition:all .15s;text-align:left;color:#28414a}.domain:hover{border-color:#0e9e91;transform:translateY(-1px)}.domain.selected{border:2px solid #0e978c;background:#f4fffc;padding:12px 11px;box-shadow:0 7px 19px #0c8d8121}.domain-head{display:flex;align-items:center;justify-content:space-between;gap:6px}.domain-head b{font-size:12px}.pin-btn{border:0;background:#eff4f5;color:#81979e;border-radius:6px;cursor:pointer;padding:3px 7px;font-size:11px}.pin-btn.pinned{background:#def4ec;color:#087e69}.domain small{display:block;font-size:10px;color:#788b90;margin-top:4px}.subnodes{display:none;flex-direction:column;gap:5px;border-top:1px solid #dce9e7;margin-top:10px;padding-top:9px}.domain.open .subnodes{display:flex}.subnodes span{font-size:10px;padding:5px 7px;border-radius:6px;background:#eaf2f3;color:#466471}.domain.open{min-height:140px}.mock-detail{border-left:1px solid #d7e1e4;background:#fff;padding:18px 15px}.mock-detail small{font-size:10px;color:#80939a;letter-spacing:.5px}.mock-detail h4{font-size:15px;margin:8px 0}.mock-detail p{font-size:11px;color:#5a727d;line-height:1.6;margin:6px 0 12px}.detail-tag{font-size:10px;padding:4px 7px;background:#ecf3f5;color:#4b6b72;border-radius:5px;display:inline-block;margin:3px}.demo-legend{font-size:11px;color:#7b9096;margin:12px 2px 0}.mock-hint{padding:12px 17px;background:#e9f1f3;border-top:1px solid #d4e0e3;font-size:11px;color:#5b7882}.mono{font:12px ui-monospace,SFMono-Regular,Consolas,monospace}.pre{margin:15px 0;background:#132b35;color:#d3e5e7;border-radius:13px;padding:19px;overflow:auto;font:12px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}.code-caption{font-size:11px;color:#6c8188;margin-top:-6px}.steps{counter-reset:step;display:grid;gap:12px}.step{padding:18px 21px 18px 62px;position:relative;border:1px solid var(--line);background:#fff;border-radius:13px}.step:before{counter-increment:step;content:counter(step,decimal-leading-zero);position:absolute;left:18px;top:17px;font:750 15px ui-monospace,Consolas,monospace;color:var(--accent)}.step b{display:block;font-size:14px}.step p{font-size:12px;color:#647986;margin:4px 0 0}.quote{font-size:20px;line-height:1.6;letter-spacing:-.3px;font-weight:700;color:#174c4a;padding:22px 24px;border-radius:12px;background:#e7f5f1;border-left:4px solid #13958b}.footer{border-top:1px solid #d7e0e4;padding-top:28px;margin-top:64px;color:#687e88;font-size:12px}.links{display:flex;flex-wrap:wrap;gap:10px}.links a{display:inline-block;padding:8px 12px;background:#e9f4f2;border:1px solid #c5e3dd;border-radius:8px;font-size:12px}.kbd{border:1px solid #cfd8de;border-bottom-width:2px;padding:1px 6px;border-radius:5px;background:white;font:11px ui-monospace,monospace}.note{margin-top:12px;padding:13px 17px;background:#fff;border:1px solid var(--line);border-radius:10px;font-size:12px;color:#5d707a}.decision-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.decision{border:1px solid #d9e5e6;background:#fff;border-radius:13px;padding:17px}.decision b{font-size:13px}.decision p{font-size:12px;color:#5d747c;margin:7px 0 0}.tagline{font-size:12px;color:#91c8c5;letter-spacing:1px}.checkbox-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.check-item{background:white;border-radius:9px;border:1px solid var(--line);padding:12px 15px;font-size:12px;color:#354d56}.check-item:before{content:'✓';font-weight:900;color:var(--accent);margin-right:9px}.small-divider{height:1px;background:var(--line);margin:20px 0}.blueprint{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center}.blueprint>div{background:#fff;border:1px solid #d4e1e3;padding:14px 12px;border-radius:9px;font-size:12px;font-weight:800;text-align:center}.blueprint>span{font-size:20px;color:#4a9d93}.tiny{font-size:11px;color:#697e86}.qanda{display:grid;gap:10px}.qanda details{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px 18px}.qanda summary{cursor:pointer;font-weight:750;font-size:13px}.qanda p{color:#5a7179;font-size:12px}.sources li{font-size:12px;padding:4px 0;color:#526872}.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:19px}.topbar span{font-size:11px;color:#7b8f98}.print-btn{background:white;border:1px solid #d3e0e3;padding:7px 11px;font-size:11px;border-radius:8px;color:#3d6670;cursor:pointer}.print-btn:hover{background:#ebf5f3}.micro{font-size:11px;color:#7b929a}
+@media(max-width:1180px){.app{grid-template-columns:205px minmax(0,1fr)}.main{padding:25px}.mock-body{grid-template-columns:120px minmax(0,1fr) 180px}.mock-nav{padding:12px 5px}}
+@media(max-width:840px){.app{display:block}.aside{position:relative;width:auto;height:auto;display:flex;align-items:center;overflow:auto;padding:13px 15px;gap:15px}.logo{border:0;padding:0;flex-shrink:0}.nav-label,.aside-foot{display:none}.aside nav{display:flex;align-items:center;gap:3px;white-space:nowrap}.toc{padding:7px 9px}.toc span{display:none}.main{padding:18px}.hero{padding:37px 25px}.cols-3,.cols-4{grid-template-columns:repeat(2,1fr)}.mock-body{grid-template-columns:112px minmax(0,1fr)}.mock-detail{grid-column:1/-1;border-left:0;border-top:1px solid #d7e1e4}.mock-nav div{padding:8px 5px}.section{margin-top:42px}}
+@media(max-width:580px){.cols-2,.cols-3,.cols-4,.split,.decision-grid,.checkbox-row{grid-template-columns:1fr}.feature{grid-template-columns:1fr;gap:7px}.feature .id{width:max-content}.mock-body{grid-template-columns:minmax(0,1fr)}.mock-nav{display:none}.domains{gap:7px}.domain{padding:10px}.mock-detail{grid-column:1}.hero h1{font-size:38px}.hero p{font-size:13px}.card{padding:18px}.blueprint{grid-template-columns:1fr}.blueprint>span{transform:rotate(90deg);text-align:center}.section h2{font-size:23px}}
+@media print{body{background:white}.app{display:block}.aside,.print-btn,.topbar{display:none}.main{padding:0}.hero{border-radius:0;box-shadow:none}.section{break-inside:avoid;margin-top:30px}.card,.table-wrap,.mock{box-shadow:none}.mock{break-inside:avoid}@page{size:A4;margin:14mm}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="aside">
+ <div class="logo"><span class="mark">A</span><div><strong>Project Atlas</strong><small>PRODUCT BLUEPRINT</small></div></div>
+ <nav>
+ <div class="nav-label">Product</div>
+ <a class="toc active" href="#overview"><span>00</span>项目概览</a>
+ <a class="toc" href="#pain"><span>01</span>用户痛点</a>
+ <a class="toc" href="#position"><span>02</span>定位与原则</a>
+ <a class="toc" href="#personas"><span>03</span>用户角色和场景</a>
+ <div class="nav-label">Design</div>
+ <a class="toc" href="#architecture"><span>04</span>架构与数据边界</a>
+ <a class="toc" href="#technology"><span>05</span>技术选型</a>
+ <a class="toc" href="#ui"><span>06</span>页面与交互原型</a>
+ <a class="toc" href="#requirements"><span>07</span>功能需求</a>
+ <div class="nav-label">Delivery</div>
+ <a class="toc" href="#schema"><span>08</span>数据规范</a>
+ <a class="toc" href="#ai"><span>09</span>AI 维护工作流</a>
+ <a class="toc" href="#security"><span>10</span>隐私与安全</a>
+ <a class="toc" href="#scope"><span>11</span>MVP 与非目标</a>
+ <a class="toc" href="#acceptance"><span>12</span>验收标准</a>
+ <a class="toc" href="#plan"><span>13</span>实施路线</a>
+ <a class="toc" href="#decisions"><span>14</span>决策与待确认</a>
+ <a class="toc" href="#sources"><span>15</span>参考资料</a>
+ </nav>
+ <div class="aside-foot">版本 v0.1 · 2026-10-30<br>面向本地 AI 开发的可执行产品基线<br>示意数据 ≠ 实际项目扫描结果</div>
+</aside>
+<main class="main"><div class="content">
+<div class="topbar"><span>产品说明书 / Product Requirements & Technical Blueprint</span><button class="print-btn" onclick="window.print()">打印 / 保存 PDF</button></div>
+<header class="hero" id="overview">
+ <div class="eyebrow">OPEN-SOURCE · LOCAL-FIRST · AI-READY</div>
+ <h1>Project Atlas</h1>
+ <div class="subtitle">把复杂软件系统，变成可探索的业务地图。</div>
+ <div class="tagline">Business-first · Code-backed · AI-maintained</div>
+ <p>面向 AI 辅助开发与多人协作时代的本地项目地图平台。将业务功能、配置依赖、数据流向、部署条件和代码证据连接起来；让负责人无需记住所有技术细节，也能按需进入系统，理解影响、接手工作、完成交接。</p>
+ <div class="hero-meta"><span>独立开源平台</span><span>私有项目数据留在项目内</span><span>业务优先，技术按需下钻</span><span>Codex 等 AI 维护地图</span><span>只读加载优先</span></div>
+ <div class="stamp">产品定义稿 · v0.1 · 2026 年 10 月 30 日 · 用于交给本地开发 AI 作为需求依据</div>
+</header>
+<section class="section" id="pain"><div class="section-header"><span class="num">01</span><h2>创始用户的真实痛点</h2></div>
+<p class="intro">本项目并非因为“没有文档”。恰恰相反：项目已有设计文档、功能清单、表结构、数据流转和 AI 工作规范，AI 通常能凭这些材料正确开发与排障。问题出现在人的系统认知跟不上 AI 与多人开发的变化速度。</p>
+<div class="grid cols-2">
+ <article class="card problem"><span class="p-num">PAIN / 01</span><h3>开发速度远超认知带宽</h3><p>需求和代码由多人及 AI 持续并行推进，负责人不再参与多数实现细节；系统并未必然失控，但个体已无法持续跟踪每个模块的演变。</p></article>
+ <article class="card problem"><span class="p-num">PAIN / 02</span><h3>“AI 能查到”不等于“人知道影响”</h3><p>故障时把现象交给 AI，修复后由 AI 归档。下次仍要重新查；人不想也不需要记住全部表名、配置、函数和故障细节。</p></article>
+ <article class="card problem"><span class="p-num">PAIN / 03</span><h3>恢复服务不等于恢复业务能力</h3><p>经历生产勒索软件事故后，系统重建时只确认服务能启动，遗漏部分运行时配置，导致后续两次配置相关故障。需要可核验的部署依赖，而非纯文字提醒。</p></article>
+ <article class="card problem"><span class="p-num">PAIN / 04</span><h3>现有代码关系图信息过载</h3><p>普通图谱画满函数调用、节点和箭头，难以回答“这个业务是什么、依赖什么、改动会影响什么”。默认视角过低，无法产生业务认知。</p></article>
+ <article class="card problem"><span class="p-num">PAIN / 05</span><h3>大量功能并非本人开发</h3><p>即使有时间阅读，也不可能掌握团队和 AI 完成的每项功能；更合理的方式是通过业务导航按需获得上下文。</p></article>
+ <article class="card problem"><span class="p-num">PAIN / 06</span><h3>难以低成本交接</h3><p>项目能够被某个 AI 正确维护，不代表运维、其他开发者或另一个 AI 可以立即理解跨业务、配置、数据和运行依赖。</p></article>
+</div>
+<div class="quote" style="margin-top:22px">“我可以完全不参与技术细节，但需要项目能被 AI 和其他人可靠接手；需要时，我又能自由切回开发者角色。”</div>
+</section>
+<section class="section" id="position"><div class="section-header"><span class="num">02</span><h2>产品定位、目标与边界</h2></div>
+<div class="grid cols-3">
+ <div class="card"><span class="pill good">Business-first</span><h3 style="margin-top:13px">业务先于代码</h3><p>首页以业务领域及业务功能组织信息。默认不展示函数、方法调用和低价值技术连线。</p></div>
+ <div class="card"><span class="pill good">Code-backed</span><h3 style="margin-top:13px">每个重要结论可追溯</h3><p>业务链、配置和数据依赖都能定位到文件、符号、SQL 或设计文档；区分确认和推断。</p></div>
+ <div class="card"><span class="pill good">AI-maintained</span><h3 style="margin-top:13px">由项目内 AI 更新数据</h3><p>Atlas 是展示与查询平台，不强制调用某家模型，也不把生成器内嵌为唯一入口。</p></div>
+</div>
+<div class="callout">一句话定义：Project Atlas 是一个读取私有项目结构化地图数据、提供业务级可视化探索与跨层影响分析的通用开源服务。</div>
+<div class="table-wrap"><table><thead><tr><th>是</th><th>不是</th></tr></thead><tbody>
+<tr><td>项目级业务导航与依赖认知平台</td><td>强制展示所有函数调用的代码图谱</td></tr>
+<tr><td>跨业务、配置、数据库、部署的关联层</td><td>现有设计文档或知识库的替代品</td></tr>
+<tr><td>独立开源软件 + 可移植数据规范</td><td>绑定某个私有项目或某个 AI 供应商的工具</td></tr>
+<tr><td>可追溯的影响分析与部署检查入口</td><td>未经验证就能自动操作生产环境的控制器</td></tr>
+<tr><td>本地优先、私有数据默认不上传</td><td>默认采集项目代码和配置到云端的 SaaS</td></tr>
+</tbody></table></div>
+</section>
+<section class="section" id="personas"><div class="section-header"><span class="num">03</span><h2>用户角色与核心使用场景</h2></div>
+<div class="grid cols-3">
+ <div class="card"><span class="pill purple">模式 01</span><h3 style="margin-top:12px">业务用户</h3><p>搜索功能、看到业务含义、依赖和影响，不要求理解具体代码。</p><ul><li>我要修改这项业务，影响谁？</li><li>某功能到底属于哪个模块？</li></ul></div>
+ <div class="card"><span class="pill purple">模式 02</span><h3 style="margin-top:12px">负责人 / 运维</h3><p>看跨模块依赖、配置风险、环境基线和恢复核对，不必自己管理技术细节。</p><ul><li>迁移文件目录还需改哪里？</li><li>新环境恢复是否完整？</li></ul></div>
+ <div class="card"><span class="pill purple">模式 03</span><h3 style="margin-top:12px">开发者 / AI</h3><p>逐层钻取到接口、表字段、SQL、配置、代码证据，用于开发、排障及交接。</p><ul><li>这张表被哪些功能写入？</li><li>这个配置的上下游是什么？</li></ul></div>
+</div>
+<p class="note"><b>角色切换不是权限切换。</b> 同一个人可以按需从业务视角下钻到技术视角；实际写入项目文件、访问生产信息的权限仍需独立控制。</p>
+</section>
+<section class="section" id="architecture"><div class="section-header"><span class="num">04</span><h2>总体架构与私有数据边界</h2></div>
+<p class="intro">最重要的架构约束：Atlas 平台不持有某个业务项目的知识真相。真相保存在各自的私有项目中，由项目内的 AI 或专用工具维护。Atlas 只消费符合标准的数据。</p>
+<div class="archbox">
+ <div class="layer primary"><strong>Project Atlas · 开源服务</strong><p>Web UI / 全局搜索 / 图谱展示 / 上下游查询 / 影响分析 / 本地项目加载器</p></div>
+ <div class="arrow">↕</div>
+ <div class="layer"><strong>Project Atlas Data Contract · 公开、版本化的数据规范</strong><p>Entity / Relation / Evidence / View / Layout / Snapshot / Validation Report</p></div>
+ <div class="arrow">↕</div>
+ <div class="split"><div class="layer private"><strong>私有项目 A</strong><p>源码、文档、.project-atlas/ 数据<br>由 Codex 更新和提交</p></div><div class="layer private"><strong>项目 B / C / N</strong><p>独立私有仓库<br>可以由其他 AI、CLI 或人工生成</p></div></div>
+</div>
+<div class="grid cols-2" style="margin-top:19px">
+ <div class="card"><h3>Atlas 仓库（公开）</h3><p>平台 UI、数据模型、验证器、通用图查询、图引擎适配层、示例虚构项目、公开文档。不得包含真实业务项目数据。</p></div>
+ <div class="card"><h3>业务仓库（私有）</h3><p>业务代码、原有文档、结构化地图、项目布局与证据。可按需把 Atlas 数据文件纳入原有 Git 管理，形成版本对应关系。</p></div>
+</div>
+<div class="callout warn">安全边界：即使只有“项目地图”，也可能泄露业务拓扑、数据库表、内部路径和配置项名称。私有地图不是无敏感信息的展示数据，默认绝不公开同步。</div>
+</section>
+<section class="section" id="technology"><div class="section-header"><span class="num">05</span><h2>技术选型与复用策略</h2></div>
+<p class="intro">选型原则：优先利用成熟图引擎及架构可视化能力，自己只开发产品特有的“业务语义、交互、查询、证据和跨层影响分析”。</p>
+<div class="table-wrap"><table><thead><tr><th>模块</th><th>推荐方案</th><th>理由与要求</th><th>状态</th></tr></thead><tbody>
+<tr><td>前端平台</td><td>React + TypeScript + Vite</td><td>适合可组合工作台、图引擎集成、开源组件生态；若团队明确更擅长 Vue，可替换。</td><td><span class="pill orange">建议</span></td></tr>
+<tr><td>可视化主候选</td><td>AntV G6 5.x</td><td>Combo 嵌套分组、折叠、跨组合连线转接、布局、缩放、聚焦、自定义节点；MIT。</td><td><span class="pill good">优先 PoC</span></td></tr>
+<tr><td>复用替代候选</td><td>LikeC4</td><td>DSL/模型驱动、多视图和逐层钻取、React 嵌入、模型构造 API；MIT。重点验证是否可承载产品交互。</td><td><span class="pill orange">对比 PoC</span></td></tr>
+<tr><td>底层代码图参考</td><td>CodeBoarding</td><td>已有静态分析 + AI 架构生成、analysis.json、本地分析能力；分析引擎 MIT。参考设计，不依赖其托管 UI。</td><td><span class="pill">参考与选用评估</span></td></tr>
+<tr><td>其他图引擎备选</td><td>Cytoscape.js</td><td>成熟图查询与网络分析；若复杂关系查询表现更重要可对比，核心 MIT。</td><td><span class="pill">备选</span></td></tr>
+<tr><td>数据格式</td><td>JSON / JSONL + JSON Schema</td><td>易于 AI 生成、Git Diff、验证和跨语言消费；避免绑定 G6 或 LikeC4 内部格式。</td><td><span class="pill good">确定方向</span></td></tr>
+<tr><td>本地服务</td><td>Node.js + 小型本地 HTTP API</td><td>负责访问允许目录、校验数据、索引查询和静态网页；默认监听 127.0.0.1。</td><td><span class="pill orange">建议</span></td></tr>
+<tr><td>搜索与索引</td><td>第一版内存索引 / 轻量缓存</td><td>避免引入 Neo4j 和复杂后台。数据规模验证后再考虑 SQLite FTS 或图索引。</td><td><span class="pill good">MVP</span></td></tr>
+</tbody></table></div>
+<div class="grid cols-2">
+ <div class="card"><h3>G6 需要验证的能力</h3><ul><li>业务 Combo 折叠及跨模块聚合线</li><li>默认单模块聚焦 + 固定多模块展开</li><li>可稳定恢复的布局坐标</li><li>大图裁剪、按需装载与性能</li></ul></div>
+ <div class="card"><h3>LikeC4 需要验证的能力</h3><ul><li>从 Atlas 标准数据生成多层模型和视图</li><li>嵌入式单节点聚焦和多模块固定</li><li>关系聚合、详情联动及自定义行为</li><li>源证据、表/配置视角和布局保存</li></ul></div>
+</div>
+<div class="callout">技术决策：先用<strong>同一份虚构项目数据</strong>完成 G6 和 LikeC4 的小型验证。若 LikeC4 无法以合理成本满足交互，就用 G6 构建专属 Viewer。无论结果如何，Atlas 数据契约保持引擎无关。</div>
+</section>
+<section class="section" id="ui"><div class="section-header"><span class="num">06</span><h2>页面形态与可交互原型</h2></div>
+<p class="intro">首页已确定采用：<b>全局搜索 + 业务分组全景图 + 逐层深入</b>。三栏结构：左侧业务导航，中间图形画布，右侧节点详情。首页默认只展示高层业务领域，而非所有技术节点。</p>
+<div class="mock" id="demo">
+ <div class="mock-toolbar"><span class="mock-brand">◈ Project Atlas</span><input class="mock-search" id="demoSearch" placeholder="搜索业务模块（试试：订单、资金、配置）" aria-label="搜索示例业务模块"><span class="mock-mode">业务视图</span><span class="mock-mode">main · 示例</span></div>
+ <div class="mock-body">
+ <div class="mock-nav"><small>NAVIGATION</small><div class="on">▦ 系统全景</div><div>▧ 业务功能</div><div>◇ 依赖探索</div><div>▤ 数据流转</div><div>⚙ 配置依赖</div><div>▥ 部署环境</div></div>
+ <div class="mock-canvas"><div class="canvas-top"><b>业务领域全景</b><small id="demoCount">4 个领域</small></div><div class="domains" id="demoDomains"></div><div class="demo-legend">点击模块聚焦；点击「固定」可同时展开多个模块。此处演示交互规则，正式版本使用 G6 / LikeC4 画布与聚合连线。</div></div>
+ <div class="mock-detail" id="demoDetail"><small>SELECTED DOMAIN</small><h4>订单管理</h4><p>选中模块查看职责和关联对象。</p></div>
+ </div>
+ <div class="mock-hint">演示数据全部为虚构示意，不包含用户实际业务项目；图形组件、节点连线和缩放需在正式实现中完成。</div>
+</div>
+<div class="table-wrap"><table><thead><tr><th>操作</th><th>行为</th><th>原则</th></tr></thead><tbody>
+<tr><td>搜索</td><td>跨业务名、别名、表、配置、接口搜索；定位内部节点时先展开所属业务领域。</td><td>搜索是主入口，不要求用户记住表名。</td></tr>
+<tr><td>单击节点</td><td>高亮节点、直接关系及重要路径；右侧显示业务解释和证据。</td><td>不立即灌入全部细节。</td></tr>
+<tr><td>展开业务模块</td><td>默认同一时刻只聚焦一个展开模块，其他非固定模块自动折叠。</td><td>默认控制复杂度。</td></tr>
+<tr><td>固定模块</td><td>手动固定其他模块，使其保持展开，支持跨模块对照。</td><td>模式 C，已确定。</td></tr>
+<tr><td>双击功能</td><td>进入功能详情；显示业务规则、重要调用路径、读写表、配置及可选技术实现。</td><td>逐层下钻。</td></tr>
+<tr><td>单击聚合连线</td><td>展示两个模块之间的关系类别和数量；按需打开明细。</td><td>不要数十条平行箭头。</td></tr>
+<tr><td>搜索配置或数据表</td><td>以所选配置或表为中心，切换上下游影响视图和证据列表。</td><td>所有类型节点可作为中心。</td></tr>
+<tr><td>手动拖动与保存</td><td>首次自动布局，调整后记住节点位置；增量更新尽量保持未变节点稳定。</td><td>防止每次打开都是陌生地图。</td></tr>
+<tr><td>视图分享与导出</td><td>导出当前子图、依赖摘要及引用证据；导出前提示可能包含私有信息。</td><td>满足交接，不默认公开。</td></tr>
+</tbody></table></div>
+<h3>推荐的信息层级</h3>
+<div class="blueprint"><div>L1<br><span class="tiny">业务领域</span></div><span>→</span><div>L2<br><span class="tiny">业务功能</span></div><span>→</span><div>L3 / L4<br><span class="tiny">服务/数据/配置 → 代码证据</span></div></div>
+<p class="note">要支持的不是单一严格树：功能可以归属于一个主业务领域，同时与多个领域关联；数据库表、共享组件、配置和外部服务则可被多个业务引用。归属关系和依赖关系必须分开建模。</p>
+<h3>连线呈现原则</h3>
+<div class="grid cols-3">
+ <div class="card"><h4>首页聚合</h4><p>仅显示业务领域之间的重要关系。一组底层关系汇总为一条可点击的聚合连线，附数量或关系类型。</p></div>
+ <div class="card"><h4>类型可区分</h4><p>调用、数据读写、事件、配置和部署依赖使用不同标识；可按类型过滤，不只依赖颜色。</p></div>
+ <div class="card"><h4>证据可区分</h4><p>已验证关系与待确认推断使用不同线型/标记；点击可查看来源，避免漂亮但不可靠的图。</p></div>
+</div>
+</section>
+<section class="section" id="requirements"><div class="section-header"><span class="num">07</span><h2>详细功能需求清单</h2></div>
+<p class="intro">优先级：P0 = 第一版必须；P1 = 早期重要扩展；P2 = 后续演进。每项需求都应给出可验证的用户行为，不以“图能画出来”作为完成标准。</p>
+<div class="feature-list">
+ <div class="feature"><div class="id">F-01<br>P0</div><div><h3>私有项目加载与多项目切换</h3><p>用户选择一个被允许的本地项目目录；Atlas 读取其地图清单、验证版本与文件完整性，加载后显示项目名称、分支、对应提交、生成时间和数据状态。</p><div class="done">验收：切换项目不串数据；缺失、过期、无权限时可诊断，不显示虚假“完整”。</div></div></div>
+ <div class="feature"><div class="id">F-02<br>P0</div><div><h3>业务分组首页</h3><p>首页按业务领域聚合展示模块，仅保留有意义的跨领域依赖线；公共能力独立分组；主归属稳定，非树形依赖另行表达。</p><div class="done">验收：默认画面不出现函数级调用；可通过领域快速找到功能。</div></div></div>
+ <div class="feature"><div class="id">F-03<br>P0</div><div><h3>聚焦、展开、固定、多层下钻</h3><p>单击聚焦，展开当前模块；默认其他未固定模块折叠。可固定多个模块做对照，进入功能层后再按需看服务、表、配置和源码。</p><div class="done">验收：连续切换模块不乱；折叠后的跨模块连线语义保持正确。</div></div></div>
+ <div class="feature"><div class="id">F-04<br>P0</div><div><h3>统一搜索与双向关系导航</h3><p>通过业务名、别名、表名、配置、接口、类名检索。节点可作为关系中心，切换上游/下游、1~3 层及关系类型过滤。</p><div class="done">验收：从业务找表，从表反查业务，从配置反查被影响功能。</div></div></div>
+ <div class="feature"><div class="id">F-05<br>P0</div><div><h3>关系证据和可信度</h3><p>重要关系包含类型、方向、来源、代码/文档引用、验证状态和版本；支持打开本地证据定位点（在许可范围内）。</p><div class="done">验收：无法验证的依赖清楚标注为“文档声明/AI 推断/待确认”。</div></div></div>
+ <div class="feature"><div class="id">F-06<br>P0</div><div><h3>配置与数据依赖视图</h3><p>配置→读取代码→功能→运行条件；业务→数据读写→表/关键字段；支持聚合和局部明细。</p><div class="done">验收：选定文件存储配置可列出影响路径与尚需核实的生产项。</div></div></div>
+ <div class="feature"><div class="id">F-07<br>P0</div><div><h3>布局保存、版本标识和缺失状态</h3><p>保存手动布局与固定展开状态；显示当前地图所对应提交和可能的过期状态；找不到证据时显示“未知”，不静默隐藏。</p><div class="done">验收：重新载入后位置稳定；仓库提交变化但地图未更新时有明确提醒。</div></div></div>
+ <div class="feature"><div class="id">F-08<br>P1</div><div><h3>变更影响分析</h3><p>选择模块、字段或配置，沿不同类型关系追踪受影响业务，展示“直接影响 / 间接候选 / 待验证”及回归建议；避免将图遍历结果当作确定性影响。</p><div class="done">验收：结果具有可点击证据和明确的推断边界。</div></div></div>
+ <div class="feature"><div class="id">F-09<br>P1</div><div><h3>部署地图与恢复对照</h3><p>展示服务、环境、端口、目录、证书、IIS/反向代理、DB、缓存、外部依赖；关联环境基线与实际验证记录，生成部署检查清单。</p><div class="done">验收：服务启动成功但缺失关键业务配置时，不得显示“全部恢复”。</div></div></div>
+ <div class="feature"><div class="id">F-10<br>P1</div><div><h3>Git 版本对照与地图增量变化</h3><p>对比两次地图版本，识别新增、删除、变更的业务依赖；输出变化摘要，避免每次整图重新布局。</p><div class="done">验收：能够说明某个跨业务依赖在哪个提交首次出现。</div></div></div>
+ <div class="feature"><div class="id">F-11<br>P1</div><div><h3>交接与只读导出</h3><p>导出局部子图、功能说明、关联配置/数据及证据引用的 HTML/Markdown/JSON；必要时脱敏。</p><div class="done">验收：不拥有业务仓库开发经验的接手人可以沿地图找到可靠入口。</div></div></div>
+ <div class="feature"><div class="id">F-12<br>P2</div><div><h3>AI 工具查询接口 / MCP</h3><p>对标准数据提供 findFeature、getDependencies、findImpact、getDeploymentChecklist 等只读能力，供本地 Codex 等工具消费。</p><div class="done">验收：不需要打开 Web 页面，AI 也能获得相同的关系和证据。</div></div></div>
+</div>
+</section>
+<section class="section" id="schema"><div class="section-header"><span class="num">08</span><h2>项目内结构化数据规范</h2></div>
+<p class="intro">建议在每个私有项目内提供 <span class="mono">.project-atlas/</span>。以下是候选格式，不是已经发布的正式 Schema。真正实施时先冻结最小字段与版本迁移规则，确保框架独立于具体 AI 和图引擎。</p>
+<pre class="pre">my-private-repo/
+├── src/                           # 原业务代码
+├── docs/                          # 原有设计与业务文档
+└── .project-atlas/
+    ├── manifest.json              # 项目、schemaVersion、commit、生成时间
+    ├── entities.jsonl             # 业务、功能、服务、表、配置、任务等实体
+    ├── relations.jsonl            # 有方向、有类型的依赖关系
+    ├── evidence.jsonl             # 代码/SQL/文档证据引用
+    ├── views.json                 # 首页分组、视图定义、默认过滤
+    ├── layouts.json               # 可选的共享布局数据
+    └── validation-report.json     # 扫描覆盖与待确认项</pre>
+<div class="table-wrap"><table><thead><tr><th>对象</th><th>最低字段（草案）</th><th>规则</th></tr></thead><tbody>
+<tr><td>Entity</td><td>id, type, name, parentId?, description?, aliases?</td><td>稳定 ID；display name 可改；归属不是全部依赖。</td></tr>
+<tr><td>Relation</td><td>id, source, target, type, evidenceIds[], status</td><td>必须有方向；调用/读取/写入不能混为一种“关联”。</td></tr>
+<tr><td>Evidence</td><td>id, kind, path, symbol?, lineStart?, lineEnd?, commit?</td><td>相对仓库路径；标记是否经过验证；不要复制机密全文。</td></tr>
+<tr><td>Manifest</td><td>schemaVersion, projectId, sourceCommit, generatedAt, generator</td><td>每次地图对应源版本；校验数据格式与兼容性。</td></tr>
+<tr><td>View</td><td>id, title, focusIds, filter, depth, groupBy</td><td>同一图谱可以投影为业务图、数据图、配置图或部署图。</td></tr>
+<tr><td>Layout</td><td>viewId, nodePositions, expandedIds, pinnedIds</td><td>与语义关系分离；尽可能保留历史位置；允许个人覆写。</td></tr>
+</tbody></table></div>
+<h3>关系类型（第一版候选）</h3>
+<div class="grid cols-4">
+ <div class="check-item">BELONGS_TO / 业务归属</div><div class="check-item">CALLS / 调用</div><div class="check-item">READS / 读取</div><div class="check-item">WRITES / 写入</div><div class="check-item">USES_CONFIG / 使用配置</div><div class="check-item">PUBLISHES / 发布事件</div><div class="check-item">SUBSCRIBES / 订阅事件</div><div class="check-item">DEPENDS_ON / 依赖</div>
+</div>
+<h3>最小数据示例（纯虚构）</h3>
+<pre class="pre">// entities.jsonl（逐行 JSON）
+{"id":"domain.assets","type":"domain","name":"文件资源"}
+{"id":"feature.upload","type":"feature","name":"文件上传","parentId":"domain.assets"}
+{"id":"config.fileRoot","type":"config","name":"FileStoragePath"}
+{"id":"service.upload","type":"service","name":"UploadService"}
+
+// relations.jsonl（逐行 JSON）
+{"id":"rel.001","source":"feature.upload","target":"service.upload","type":"USES","status":"verified","evidenceIds":["ev.001"]}
+{"id":"rel.002","source":"service.upload","target":"config.fileRoot","type":"USES_CONFIG","status":"verified","evidenceIds":["ev.002"]}
+
+// evidence.jsonl（逐行 JSON）
+{"id":"ev.002","kind":"code","path":"backend/src/.../UploadService.java","symbol":"resolveRootPath","commit":"example-commit","verification":"code-inspected"}</pre>
+<p class="code-caption">仅示意字段和相互引用。正式版需规定完整 JSON Schema、枚举、唯一性、方向含义、删除/废弃和版本迁移。实际文件应为合法 JSONL，不包含这里的注释。</p>
+<div class="callout warn">业务语义与实现证据必须分离。业务分类由已有设计与负责人确认，可被 AI 增量维护；同一事实有冲突时保留差异与待确认状态，不允许 AI 悄悄覆盖已确认的业务边界。</div>
+</section>
+<section class="section" id="ai"><div class="section-header"><span class="num">09</span><h2>AI 如何生成、维护和消费地图</h2></div>
+<p class="intro">平台不内置某个模型，也不把“AI 自己说已更新”当成更新保障。由项目仓库中的工具与 AI 工作规范共同维护，Atlas 通过 Schema 校验、证据检验与版本状态展示结果。</p>
+<div class="steps">
+ <div class="step"><b>首次扫描与复用已有文档</b><p>先读取现有项目规范、功能列表、表结构和设计资料，再结合代码、SQL、配置提取关系；避免重复编写文字知识库。</p></div>
+ <div class="step"><b>产生结构化地图变更</b><p>增量添加或更新实体、关系、证据、视图；保留稳定 ID 与来源提交；人工确认的业务归属不得随意重分组。</p></div>
+ <div class="step"><b>运行可执行校验</b><p>检查 Schema、引用完整性、关系方向、循环归属、源文件和关键符号存在性；无法确认的记为 unknown/claimed/inferred。</p></div>
+ <div class="step"><b>发布与展示</b><p>Atlas 重新读取数据，保留用户布局，计算影响视图；当工作树变化而地图尚未同步时提示版本差异。</p></div>
+ <div class="step"><b>开发、部署与故障复用</b><p>本地 AI 在任务前查询相关关系；执行后更新关系与验证证据。部署验证结果写入项目可管理的检查记录，而不是修改生产环境的真实状态推测。</p></div>
+</div>
+<div class="grid cols-2" style="margin-top:18px">
+ <div class="card"><h3>项目 AI 的责任</h3><ul><li>理解代码及业务语义，维护结构化关系</li><li>标注来源和不确定性</li><li>修改代码后识别地图影响</li><li>保持现有架构规范与业务归属</li></ul></div>
+ <div class="card"><h3>Atlas 的责任</h3><ul><li>加载和验证标准数据</li><li>显示图谱、搜索、筛选与上下游</li><li>提供关系查询与影响候选</li><li>提示数据过期、缺失或不一致</li></ul></div>
+</div>
+</section>
+<section class="section" id="security"><div class="section-header"><span class="num">10</span><h2>安全、隐私与运行约束</h2></div>
+<div class="grid cols-2">
+ <div class="card"><h3>本地优先</h3><p>默认监听 <span class="mono">127.0.0.1</span>，不开放公网，不主动上传代码、配置或关系图。需要 LAN/远程访问时必须显式启用认证和授权。</p></div>
+ <div class="card"><h3>目录白名单与只读默认</h3><p>只访问明确选择/授权的项目目录；防止路径穿越和符号链接逃逸。Atlas 默认不写业务仓库，保存共享布局需要用户授权。</p></div>
+ <div class="card"><h3>秘密信息不入图</h3><p>允许记录“存在数据库凭据配置项”，不允许存储凭据值、令牌、私钥、生产连接串中的敏感部分；导出需脱敏提醒。</p></div>
+ <div class="card"><h3>可信证据与生产边界</h3><p>本地代码无法证明线上 IIS、文件权限或数据库实际配置。生产状态必须通过授权采集与验证，且查看地图不等于拥有生产操作权。</p></div>
+</div>
+<div class="note"><b>关于勒索软件事故对应的产品要求：</b>地图要帮助识别恢复前置条件和配置遗漏，但不能被宣传成防勒索软件或安全取证工具。备份不可变性、离线副本、恢复演练、入侵溯源应由独立安全流程负责。</div>
+</section>
+<section class="section" id="scope"><div class="section-header"><span class="num">11</span><h2>MVP 范围与刻意不做的事</h2></div>
+<div class="split">
+ <div class="card"><span class="pill good">MVP / P0</span><h3 style="margin-top:12px">先做一条完整可用的体验链</h3><ul><li>打开 Atlas → 加载一个私有项目</li><li>首页业务领域全景 + 搜索</li><li>聚焦、展开、固定其他模块</li><li>功能 → 服务/表/配置 → 证据</li><li>表或配置的反向依赖查询</li><li>关系聚合、可信状态展示</li><li>稳定布局、版本状态、数据校验</li><li>虚构示例项目 + 私有项目接入示例</li></ul></div>
+ <div class="card"><span class="pill orange">不在 MVP 内</span><h3 style="margin-top:12px">避免大而全</h3><ul><li>重写多语言 AST 扫描器</li><li>自建通用数据库图引擎</li><li>强制搭建 Neo4j 或 K8s</li><li>默认扫描本机所有仓库</li><li>生产自动部署、自动修复和远程控制</li><li>实时监控大屏、日志平台、APM</li><li>从函数图自动“猜对”全部业务语义</li><li>由平台托管私有项目数据到云端</li></ul></div>
+</div>
+<div class="callout">MVP 产品价值检验：负责人能否不看源码，就从一个业务入口找到关联表、配置、部署要求；需要时继续下钻并看到可信证据。</div>
+</section>
+<section class="section" id="acceptance"><div class="section-header"><span class="num">12</span><h2>必须通过的真实场景验收</h2></div>
+<div class="table-wrap"><table><thead><tr><th>场景</th><th>操作</th><th>可接受结果</th></tr></thead><tbody>
+<tr><td>业务找数据</td><td>搜索一个核心业务功能</td><td>进入业务模块，找到主要写入/读取的数据表及其证据，默认不展示全部函数。</td></tr>
+<tr><td>数据反查业务</td><td>搜索某张跨功能共享表</td><td>列出直接读写者、对应功能与关系方向，能打开来源。</td></tr>
+<tr><td>静态资源迁移</td><td>搜索文件存储配置并执行影响分析</td><td>展示文件写入/读取、历史路径、IIS/映射、权限、配置与数据库候选；未从本地证实的标记待验证。</td></tr>
+<tr><td>部署恢复</td><td>打开某服务部署视图</td><td>列出必需配置、服务与资源；区分代码要求、环境基线和已现场验证，不以“启动成功”替代验收。</td></tr>
+<tr><td>多人开发变化</td><td>修改一个模块依赖后增量更新地图</td><td>新关系出现，相关视图更新，其他模块布局基本保持，来源提交可追溯。</td></tr>
+<tr><td>交互与性能</td><td>模拟几十个领域、数百个功能和数千条关系</td><td>首页按领域聚合仍易读；需要实际基准测试，不凭空承诺固定帧率或加载耗时。</td></tr>
+<tr><td>隐私隔离</td><td>导入两个项目并尝试访问未授权目录</td><td>数据严格隔离；未授权路径不可读取，导出可提示脱敏。</td></tr>
+<tr><td>交接</td><td>由不熟悉项目的人使用地图定位故障入口</td><td>无需了解原代码目录，也能找到业务、配置和代码证据；未知部分明确说明。</td></tr>
+</tbody></table></div>
+</section>
+<section class="section" id="plan"><div class="section-header"><span class="num">13</span><h2>建议实施路线</h2></div>
+<div class="steps">
+ <div class="step"><b>阶段 0 · 先验证图引擎，不先开发平台</b><p>准备同一份虚构业务 JSON：4 个业务领域、15 个功能、10 个数据表、8 个配置与若干依赖；分别做 G6 与 LikeC4 PoC，验证聚合、钻取、多固定展开、布局和详情联动。</p></div>
+ <div class="step"><b>阶段 1 · 冻结 Atlas 最小数据协议</b><p>明确实体、关系、证据、视图和版本；创建 JSON Schema、校验器、示例数据。图引擎只消费转换后的视图模型，不能直接成为存储格式。</p></div>
+ <div class="step"><b>阶段 2 · 交付最小 Web Viewer</b><p>实现本地项目选择、首页业务分组、搜索、聚焦固定、分层下钻、关系明细、证据追踪、状态提示和布局保存。</p></div>
+ <div class="step"><b>阶段 3 · 用真实私有项目验证</b><p>由项目内 Codex 根据现有文档和代码生成结构化地图，先覆盖少量核心业务；验证配置与数据库双向导航，改进数据模型。</p></div>
+ <div class="step"><b>阶段 4 · 可持续维护与开源发布</b><p>接入增量更新与一致性检查、提供示例与使用教程、检查许可证和敏感数据；对外发布仅包含平台和虚构数据。</p></div>
+</div>
+<p class="note"><b>开发 AI 执行原则：</b>按阶段交付可以运行和验证的产物，不用大段静态页面假装拥有图引擎功能；不得在实现 Atlas 的过程中擅自修改真实业务项目源代码、生产配置和数据库。</p>
+</section>
+<section class="section" id="decisions"><div class="section-header"><span class="num">14</span><h2>当前已确定与尚待验证的决策</h2></div>
+<div class="decision-grid">
+ <div class="decision"><span class="pill good">已确定</span><p><b>Project Atlas 独立开源；私有项目地图数据保存在项目内。</b></p></div>
+ <div class="decision"><span class="pill good">已确定</span><p><b>首页采用业务分组全景 + 搜索；业务层优先，技术按需下钻。</b></p></div>
+ <div class="decision"><span class="pill good">已确定</span><p><b>默认单模块聚焦；支持固定多个模块继续展开。</b></p></div>
+ <div class="decision"><span class="pill good">已确定</span><p><b>地图由 AI 维护；Atlas 主要负责读取、展示、查询与验证。</b></p></div>
+ <div class="decision"><span class="pill orange">待验证</span><p><b>G6 与 LikeC4 最终引擎选择。</b>先进行实际交互 PoC，避免提前绑定。</p></div>
+ <div class="decision"><span class="pill orange">待验证</span><p><b>配置基线与环境实际状态的后续接入方式。</b>第一版仅加载授权数据，不要求生产实时连接。</p></div>
+ <div class="decision"><span class="pill orange">待验证</span><p><b>共享布局和个人布局的写入策略。</b>个人覆盖可放平台侧，团队共享需授权写入项目。</p></div>
+ <div class="decision"><span class="pill orange">待验证</span><p><b>公开项目名称、包名和开源许可证最终选择。</b>Project Atlas 暂定名；发布前检索重名、商标与依赖许可证。</p></div>
+</div>
+</section>
+<section class="section" id="sources"><div class="section-header"><span class="num">15</span><h2>开源复用参考与官方资料</h2></div>
+<p class="intro">以下地址均用于技术复核与 PoC，非产品的运行依赖。已于 2026-10-30 查阅相应官方页面；后续实施仍需以锁定版本的文档和许可证为准。</p>
+<div class="links"><a href="https://g6.antv.antgroup.com/en/manual/element/combo/overview/" target="_blank" rel="noopener">AntV G6 · Combo</a><a href="https://g6.antv.antgroup.com/manual/behavior/collapse-expand" target="_blank" rel="noopener">G6 · 展开/折叠</a><a href="https://github.com/antvis/G6" target="_blank" rel="noopener">G6 GitHub / MIT</a><a href="https://likec4.dev/" target="_blank" rel="noopener">LikeC4 官方</a><a href="https://likec4.dev/tooling/model-api/" target="_blank" rel="noopener">LikeC4 Model API</a><a href="https://likec4.dev/dsl/views/" target="_blank" rel="noopener">LikeC4 Views</a><a href="https://github.com/CodeBoarding/CodeBoarding" target="_blank" rel="noopener">CodeBoarding GitHub</a><a href="https://backstage.io/docs/features/software-catalog/system-model/" target="_blank" rel="noopener">Backstage System Model</a><a href="https://js.cytoscape.org/" target="_blank" rel="noopener">Cytoscape.js</a></div>
+<div class="small-divider"></div>
+<div class="card"><h3>交给本地 Codex 的阅读顺序</h3><p>① 理解第 01–04 章的用户痛点与数据边界 → ② 对照第 06–08 章实现产品交互和数据契约 → ③ 按第 05、13 章先做图引擎 PoC → ④ 用第 12 章场景验收。不要从一张静态 SVG 图或铺满函数箭头的关系网开始。</p></div>
+</section>
+<footer class="footer"><strong>Project Atlas</strong> · Business-first · Code-backed · AI-maintained<br>产品需求与技术方案说明书 v0.1 · 可本地独立打开 · 无外部脚本、图片、字体依赖。<br>© 产品设计草案。示例功能、数据表、配置名称均为虚构示意，不能视为任何真实项目的事实。</footer>
+</div></main></div>
+<script>
+(()=>{
+ const domains=[
+  {id:'order',name:'订单管理',summary:'创建、执行、状态流转与取消',desc:'业务订单的创建、生命周期状态及相关业务事件。',children:['创建订单','订单执行','订单取消','状态流转'],links:['资金管理','报表中心','权限服务']},
+  {id:'fund',name:'资金管理',summary:'账户余额、冻结、流水',desc:'围绕余额、占用、冻结与资金处理的功能边界。',children:['余额查询','资金冻结','资金解冻','资金流水'],links:['订单管理','报表中心']},
+  {id:'file',name:'文件资源',summary:'上传、下载、静态访问',desc:'管理上传、存储、读取和对外文件访问。',children:['文件上传','文件下载','历史资源访问','存储配置'],links:['资源配置','文件系统','IIS 映射']},
+  {id:'report',name:'报表中心',summary:'统计、查询、导出',desc:'汇集多个业务来源的数据进行查询、统计及输出。',children:['业务查询','统计汇总','数据导出'],links:['订单管理','资金管理']}
+ ];
+ const state={focused:'order',pinned:new Set(),q:''};
+ const area=document.getElementById('demoDomains'),detail=document.getElementById('demoDetail'),counter=document.getElementById('demoCount'),search=document.getElementById('demoSearch');
+ function esc(s){return String(s).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]))}
+ function render(){
+  const found=domains.filter(d=>(d.name+d.summary+d.desc+d.children.join('')+d.links.join('')).toLowerCase().includes(state.q.toLowerCase()));
+  counter.textContent=found.length+' 个领域';
+  area.innerHTML=found.map(d=>{const open=state.focused===d.id||state.pinned.has(d.id);return `<div class="domain ${state.focused===d.id?'selected':''} ${open?'open':''}" role="button" tabindex="0" data-domain="${d.id}" aria-label="聚焦${esc(d.name)}"><div class="domain-head"><b>${esc(d.name)}</b><button class="pin-btn ${state.pinned.has(d.id)?'pinned':''}" data-pin="${d.id}" aria-label="固定展开${esc(d.name)}">${state.pinned.has(d.id)?'已固定':'固定'}</button></div><small>${esc(d.summary)}</small><div class="subnodes">${d.children.map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>`}).join('')||'<div class="micro">没有匹配模块，请尝试其他关键词。</div>';
+  const active=domains.find(d=>d.id===state.focused)||domains[0];detail.innerHTML=`<small>SELECTED DOMAIN · 示例</small><h4>${esc(active.name)}</h4><p>${esc(active.desc)}</p><small>主要功能</small><div>${active.children.map(x=>`<span class="detail-tag">${esc(x)}</span>`).join('')}</div><div style="height:13px"></div><small>业务关联</small><p>${esc(active.links.join(' · '))}</p><small>下钻入口</small><p>查看功能 → 服务 / 表 / 配置 → 代码证据</p>`;
+  area.querySelectorAll('[data-domain]').forEach(el=>{el.addEventListener('click',e=>{if(e.target.closest('[data-pin]'))return;state.focused=el.dataset.domain;render()});el.addEventListener('keydown',e=>{if(e.target===el&&(e.key==='Enter'||e.key===' ')){e.preventDefault();state.focused=el.dataset.domain;render()}})});
+  area.querySelectorAll('[data-pin]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();let id=el.dataset.pin;if(state.pinned.has(id))state.pinned.delete(id);else state.pinned.add(id);render()}));
+ }
+ search.addEventListener('input',e=>{state.q=e.target.value;render()});render();
+ const links=[...document.querySelectorAll('.toc')];const sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);if('IntersectionObserver' in window){let observer=new IntersectionObserver(entries=>{let hits=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);if(hits.length){let id='#'+hits[0].target.id;links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')===id))}},{rootMargin:'-8% 0px -75% 0px',threshold:0});sections.forEach(s=>observer.observe(s))}
+})();
+</script>
+</body>
+</html>

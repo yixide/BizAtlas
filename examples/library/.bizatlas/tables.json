@@ -1,0 +1,59 @@
+{
+  "t-library": {
+    "columns": [
+      { "name": "id", "type": "bigint", "pk": true, "comment": "主键" },
+      { "name": "name", "type": "varchar(100)", "required": true, "comment": "图书馆名称" },
+      { "name": "city", "type": "varchar(50)", "comment": "所在城市" }
+    ]
+  },
+  "t-branch": {
+    "columns": [
+      { "name": "id", "type": "bigint", "pk": true, "comment": "主键" },
+      { "name": "library_id", "type": "bigint", "required": true, "comment": "所属图书馆", "ref": { "tableId": "t-library" } },
+      { "name": "name", "type": "varchar(100)", "required": true, "comment": "分馆名称" },
+      { "name": "address", "type": "varchar(200)", "comment": "地址" }
+    ]
+  },
+  "t-reader": {
+    "columns": [
+      { "name": "id", "type": "bigint", "pk": true, "comment": "主键" },
+      { "name": "name", "type": "varchar(50)", "required": true, "comment": "读者姓名" },
+      { "name": "home_branch_id", "type": "bigint", "comment": "办证分馆", "ref": { "tableId": "t-branch" } }
+    ]
+  },
+  "t-card": {
+    "columns": [
+      { "name": "id", "type": "bigint", "pk": true, "comment": "主键" },
+      { "name": "reader_id", "type": "bigint", "required": true, "comment": "持证读者", "ref": { "tableId": "t-reader" } },
+      { "name": "card_no", "type": "varchar(32)", "required": true, "comment": "证号" },
+      { "name": "status", "type": "tinyint", "required": true, "comment": "状态：1正常 2挂失 3注销" }
+    ]
+  },
+  "t-copy": {
+    "columns": [
+      { "name": "id", "type": "bigint", "pk": true, "comment": "主键" },
+      { "name": "book_id", "type": "bigint", "required": true, "comment": "书目", "ref": { "tableId": "t-book" } },
+      { "name": "branch_id", "type": "bigint", "required": true, "comment": "所在分馆", "ref": { "tableId": "t-branch" } },
+      { "name": "shelf_id", "type": "bigint", "comment": "书架", "ref": { "tableId": "t-shelf", "guess": true } },
+      { "name": "barcode", "type": "varchar(32)", "required": true, "comment": "条码" }
+    ]
+  },
+  "t-loan": {
+    "columns": [
+      { "name": "id", "type": "bigint", "pk": true, "comment": "主键" },
+      { "name": "card_id", "type": "bigint", "required": true, "comment": "借阅证", "ref": { "tableId": "t-card" } },
+      { "name": "copy_id", "type": "bigint", "required": true, "comment": "借出的馆藏册", "ref": { "tableId": "t-copy" } },
+      { "name": "operator_id", "type": "bigint", "comment": "经办人", "ref": { "tableId": "t-staff" } },
+      { "name": "due_date", "type": "date", "required": true, "comment": "应还日期" },
+      { "name": "returned_at", "type": "datetime", "comment": "归还时间" }
+    ]
+  },
+  "t-book": {
+    "columns": [
+      { "name": "id", "type": "bigint", "pk": true, "comment": "主键" },
+      { "name": "isbn", "type": "varchar(20)", "comment": "ISBN" },
+      { "name": "title", "type": "varchar(200)", "required": true, "comment": "书名" },
+      { "name": "category_id", "type": "bigint", "comment": "分类", "ref": { "tableId": "t-category" } }
+    ]
+  }
+}

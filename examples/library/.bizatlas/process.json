@@ -1,0 +1,119 @@
+{
+  "provinceLabel": "外部平台",
+  "modules": [
+    { "id": "setup", "name": "馆务设置", "ops": ["library.add", "branch.add", "shelf.add", "staff.add"] },
+    { "id": "catalog", "name": "编目入藏", "ops": ["category.add", "author.add", "book.add", "copy.add"] },
+    { "id": "reader", "name": "读者办证", "ops": ["reader.add", "card.add"] },
+    { "id": "circulation", "name": "借阅流通", "ops": ["loan.add", "reservation.add", "loan.return"] }
+  ],
+  "ops": {
+    "library.add": {
+      "objectId": "library", "name": "新增图书馆", "action": "新增", "page": "图书馆管理",
+      "pre": [], "picks": [],
+      "writes": [{ "name": "图书馆档案", "tableName": "library", "why": "保存图书馆基本信息" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "extras": ["虚构示例"], "evidence": [], "confidence": "inferred"
+    },
+    "branch.add": {
+      "objectId": "branch", "name": "新增分馆", "action": "新增", "page": "分馆管理",
+      "pre": [{ "op": "library.add" }],
+      "picks": [{ "objectId": "library", "label": "所属图书馆" }],
+      "writes": [{ "name": "分馆档案", "tableName": "branch", "why": "保存分馆，挂在图书馆下" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "shelf.add": {
+      "objectId": "shelf", "name": "新增书架", "action": "新增", "page": "书架管理",
+      "pre": [{ "op": "branch.add" }],
+      "picks": [{ "objectId": "branch", "label": "所在分馆" }],
+      "writes": [{ "name": "书架档案", "tableName": "shelf", "why": "保存书架位置" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "staff.add": {
+      "objectId": "staff", "name": "登记工作人员", "action": "新增", "page": "人员管理",
+      "pre": [{ "op": "branch.add" }],
+      "picks": [{ "objectId": "branch", "label": "任职分馆" }],
+      "writes": [{ "name": "工作人员档案", "tableName": "staff", "why": "保存人员与任职分馆" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "category.add": {
+      "objectId": "category", "name": "新增图书分类", "action": "新增", "page": "分类管理",
+      "pre": [], "picks": [{ "objectId": "category", "label": "上级分类（可选）" }],
+      "writes": [{ "name": "图书分类", "tableName": "book_category", "why": "保存分类树" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "author.add": {
+      "objectId": "author", "name": "登记作者", "action": "新增", "page": "作者管理",
+      "pre": [], "picks": [],
+      "writes": [{ "name": "作者档案", "tableName": "author", "why": "保存作者信息" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "book.add": {
+      "objectId": "book", "name": "新增书目", "action": "新增", "page": "书目管理",
+      "pre": [{ "op": "category.add" }, { "op": "author.add", "optional": true, "note": "作者可以后补" }],
+      "picks": [{ "objectId": "category", "label": "图书分类" }, { "objectId": "author", "label": "作者（可多选，可选）" }],
+      "writes": [
+        { "name": "图书书目", "tableName": "book", "why": "保存书名、ISBN 等书目信息" },
+        { "name": "图书作者关联", "tableName": "book_author", "why": "选了作者时写入" }
+      ],
+      "province": { "mode": "manual", "text": "示例：书目可另外提交到联合编目平台" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "copy.add": {
+      "objectId": "copy", "name": "馆藏册入库", "action": "新增", "page": "入藏登记",
+      "pre": [{ "op": "book.add" }, { "op": "shelf.add" }],
+      "picks": [{ "objectId": "book", "label": "书目" }, { "objectId": "shelf", "label": "上架书架" }],
+      "writes": [{ "name": "馆藏册", "tableName": "book_copy", "why": "每一册实体书一条，带条码" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "reader.add": {
+      "objectId": "reader", "name": "登记读者", "action": "新增", "page": "读者管理",
+      "pre": [], "picks": [],
+      "writes": [{ "name": "读者档案", "tableName": "reader", "why": "保存读者身份信息" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "card.add": {
+      "objectId": "card", "name": "办理借阅证", "action": "新增", "page": "办证",
+      "pre": [{ "op": "reader.add" }, { "op": "branch.add", "note": "在哪个分馆办证" }],
+      "picks": [{ "objectId": "reader", "label": "读者" }, { "objectId": "branch", "label": "办证分馆" }],
+      "writes": [{ "name": "借阅证", "tableName": "reader_card", "why": "生成证号和有效期" }],
+      "province": { "mode": "sync", "text": "示例：办证时当场向城市一卡通平台登记证号" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "loan.add": {
+      "objectId": "loan", "name": "借出图书", "action": "新增", "page": "借还台",
+      "fn": { "http": "POST /loan/borrow" },
+      "pre": [{ "op": "card.add" }, { "op": "copy.add" }, { "op": "staff.add", "optional": true, "note": "自助机借书时不需要工作人员" }],
+      "picks": [{ "objectId": "card", "label": "借阅证" }, { "objectId": "copy", "label": "馆藏册（扫条码）" }],
+      "writes": [{ "name": "借阅记录", "tableName": "loan", "why": "记下借出时间和应还日期" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "reservation.add": {
+      "objectId": "reservation", "name": "预约图书", "action": "新增", "page": "预约",
+      "pre": [{ "op": "card.add" }, { "op": "book.add" }],
+      "picks": [{ "objectId": "card", "label": "借阅证" }, { "objectId": "book", "label": "书目" }],
+      "writes": [{ "name": "图书预约", "tableName": "reservation", "why": "排队，书还回来后通知读者" }],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    },
+    "loan.return": {
+      "objectId": "loan", "name": "归还图书", "action": "状态变更", "page": "借还台",
+      "fn": { "http": "POST /loan/return" },
+      "pre": [{ "op": "loan.add" }],
+      "picks": [{ "objectId": "copy", "label": "馆藏册（扫条码）" }],
+      "writes": [
+        { "name": "借阅记录", "tableName": "loan", "why": "写归还时间，逾期时记罚金" },
+        { "name": "图书预约", "tableName": "reservation", "why": "有人排队时把预约改成待取" }
+      ],
+      "province": { "mode": "none", "text": "不和外部平台交互" },
+      "evidence": [], "confidence": "inferred"
+    }
+  }
+}
