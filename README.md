@@ -14,6 +14,18 @@
 
 <sub>截图均来自仓库自带的虚构「图书馆」示例。</sub>
 
+## 一句话开始
+
+在你的业务项目里打开 AI 编码代理（Claude Code、Codex 等），把这句话发给它：
+
+```text
+按 https://github.com/yixide/BizAtlas 的 INSTALL.md 安装 BizAtlas，然后给这个项目画业务地图
+```
+
+AI 会自己下载、安装好 BizAtlas 和配套 skill，然后问你要整理哪些模块、地图放在哪里，整理完给你一个本地地址打开看。
+
+> AI 代理请直接阅读 [INSTALL.md](INSTALL.md)。
+
 ## 能看什么
 
 **业务地图**
@@ -61,7 +73,7 @@ npm run dev:example
 
 ## 用 AI 生成你自己项目的地图
 
-仓库的 [`skills/bizatlas/`](skills/bizatlas/SKILL.md) 是一份写给 AI 编码代理的操作手册，教它读你的源码，一步步整理出地图数据，并自己校验。
+仓库的 [`skills/bizatlas/`](skills/bizatlas/SKILL.md) 是一份写给 AI 编码代理的操作手册，教它读你的源码，一步步整理出地图数据，并自己校验。用了上面的[一句话开始](#一句话开始)，AI 已经装好了，下面是手动安装的做法。
 
 ### 安装 skill
 

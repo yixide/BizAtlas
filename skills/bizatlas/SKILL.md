@@ -7,6 +7,14 @@ description: 读一个业务系统的源码，生成或更新 BizAtlas 业务地
 
 目标：产出一个 `.bizatlas/` 目录，BizAtlas 查看器加载后能回答三件事——**系统里有哪些业务对象、各自负责什么、它们怎么关联**；再往下能看每个对象的功能、表字段和操作先后。
 
+## BizAtlas 仓库在哪
+
+下文的 `<BizAtlas>` 指 BizAtlas 仓库的本地目录，校验和启动查看器的命令都要在这个目录下运行。按顺序找：
+
+1. 用户说过的位置。
+2. 用户主目录下的 `BizAtlas`（Windows 为 `%USERPROFILE%\BizAtlas`）。
+3. 都没有：按仓库的 [INSTALL.md](https://github.com/yixide/BizAtlas/blob/main/INSTALL.md) 把它装到用户主目录下，再继续。
+
 数据协议以 BizAtlas 仓库里的两份文件为准，动手前先读：
 
 - `docs/data-format.md`：每个文件、每个字段的含义和例子
@@ -53,7 +61,7 @@ description: 读一个业务系统的源码，生成或更新 BizAtlas 业务地
 5. **流程 `flows`**：当前界面不展示，写空数组 `[]` 即可；操作先后放到第 5 步的 process.json 里表达。
 6. **布局 `layout`**（可选）：不写就按领域自动分列。
 
-写完立刻校验，有错先修：
+写完立刻在 `<BizAtlas>` 目录下校验，有错先修：
 
 ```bash
 npm run validate -- <输出目录>
@@ -116,12 +124,12 @@ export function ev(file, needle) {
 
 ## 收尾
 
-1. `npm run validate -- <输出目录>` 通过。
-2. 在 BizAtlas 仓库根目录启动查看器，打开终端里打印的地址：
+1. 在 `<BizAtlas>` 目录下 `npm run validate -- <输出目录>` 通过。
+2. 在 `<BizAtlas>` 目录下后台启动查看器，把终端里打印的地址（默认 http://127.0.0.1:5173）告诉用户：
 
    ```bash
    npm run dev -- --data <输出目录> --source <源码根>
    ```
 
-   `--source` 可选，配了才能用界面上的「问 AI」。
+   路径用绝对路径。`--source` 可选，配了才能用界面上的「问 AI」。
 3. 向用户汇报：整理了几个领域、多少对象 / 关系 / 表 / 功能，哪些部分是推断、哪些模块还没覆盖，建议重点人工核对的地方。
