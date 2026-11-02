@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import projects from 'virtual:atlas-projects';
-import { actions, colorOf, functions, map, sourceOf, statsOf, ui, type Tab } from './store';
+import { actions, colorOf, functions, hidden, isHidden, map, sourceOf, statsOf, toggleDomain, toggleObject, ui, type Tab } from './store';
 
 const q = computed(() => ui.query.trim());
 /** 搜索同时匹配对象名和功能名：搜「挂失」能直接落到借阅证 */
@@ -15,7 +15,12 @@ const domains = computed(() => map.domains.map(d => ({
 })).filter(d => d.items.length));
 const legend = computed(() => statsOf(map.objects[0]?.id ?? ''));
 
+const hiddenCount = computed(() => map.objects.filter(o => isHidden(o.id)).length);
+const showAll = () => { hidden.domains = []; hidden.objects = []; };
+
+/** 点收起的对象：先放回地图再打开 */
 function openRow(i: { o: { id: string }; hits: { group: string }[] }) {
+  if (isHidden(i.o.id)) toggleObject(i.o.id);
   const hit = (functions[i.o.id] ?? []).find(f => f.group === i.hits[0]?.group);
   actions.open(i.o.id, hit ? { module: hit.group, source: sourceOf(hit) } : {});
 }
@@ -49,13 +54,24 @@ async function switchTo(id: string) {
     <div v-if="legend.length" class="legend">
       <span v-for="s in legend" :key="s.tab"><i>{{ s.icon }}</i>{{ s.label }}</span>
     </div>
+    <div v-if="hiddenCount" class="hidden-bar">
+      已收起 {{ hiddenCount }} 个对象<button @click="showAll">全部显示</button>
+    </div>
     <div class="scroll">
-      <section v-for="d in domains" :key="d.id">
-        <h4><i class="dot" :style="{ background: d.color }" />{{ d.name }}</h4>
-        <div v-for="i in d.items" :key="i.o.id" class="row" :class="{ on: ui.focus === i.o.id }" role="button"
-          @click="openRow(i)" @mouseenter="ui.hover = i.o.id" @mouseleave="ui.hover = ''">
+      <section v-for="d in domains" :key="d.id" :class="{ off: hidden.domains.includes(d.id) }">
+        <h4>
+          <i class="dot" :style="{ background: d.color }" />{{ d.name }}
+          <button class="eye" :title="hidden.domains.includes(d.id) ? '放回地图' : '整个领域从地图上收起'" @click="toggleDomain(d.id)">
+            {{ hidden.domains.includes(d.id) ? '显示' : '收起' }}
+          </button>
+        </h4>
+        <div v-for="i in d.items" :key="i.o.id" class="row" :class="{ on: ui.focus === i.o.id, off: isHidden(i.o.id) }" role="button"
+          @click="openRow(i)" @mouseenter="!isHidden(i.o.id) && (ui.hover = i.o.id)" @mouseleave="ui.hover = ''">
           <span class="mark sm" :style="{ '--c': d.color }">{{ i.o.name[0] }}</span>
           <span class="nm">{{ i.o.name }}</span>
+          <button class="eye" :title="isHidden(i.o.id) ? '放回地图' : '已经懂了，从地图上收起'" @click.stop="toggleObject(i.o.id)">
+            {{ isHidden(i.o.id) ? '显示' : '收起' }}
+          </button>
           <span v-if="i.hits.length" class="hit">{{ i.hits.length }} 项匹配</span>
           <span v-else class="stats">
             <button v-for="s in i.stats" :key="s.tab" :class="{ zero: !s.n }" :title="`${s.label} ${s.n}`" @click.stop="s.n && openTab(i.o.id, s.tab)">

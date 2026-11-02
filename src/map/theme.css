@@ -54,6 +54,14 @@ code { font: 11px/1.4 "Cascadia Mono", Consolas, monospace; color: var(--ink-2);
 .row .cnt { color: var(--ink-3); font-size: 11px; }
 .row .hit { color: var(--accent); font-size: 11px; }
 .row { cursor: pointer; }
+/* 收起：已经懂了的领域 / 对象从地图上拿掉，列表里留着淡色，随时放回 */
+.eye { flex: none; padding: 0 7px; border-radius: 6px; font-size: 11px; line-height: 18px; color: var(--ink-3); border: 1px solid var(--line); background: var(--panel-solid); opacity: .55; }
+.row:hover .eye, .list h4:hover .eye, .row.off .eye, section.off h4 .eye { opacity: 1; }
+.eye:hover { color: var(--accent); border-color: var(--accent); }
+.list h4 .eye { margin-left: auto; font-weight: 500; letter-spacing: 0; }
+.row.off .nm, .row.off .mark, .row.off .stats, section.off h4 .dot { opacity: .4; }
+.hidden-bar { display: flex; align-items: center; gap: 8px; margin: 0 14px 6px; padding: 5px 10px; border-radius: 9px; font-size: 12px; color: var(--ink-2); background: var(--bg); }
+.hidden-bar button { margin-left: auto; color: var(--accent); font-weight: 600; }
 .legend { display: flex; gap: 10px; margin: 0 16px 2px; color: var(--ink-3); font-size: 10.5px; }
 .legend i, .stats i { font-style: normal; margin-right: 2px; opacity: .75; }
 .stats { display: flex; gap: 1px; }
@@ -106,6 +114,11 @@ code { font: 11px/1.4 "Cascadia Mono", Consolas, monospace; color: var(--ink-2);
 .region span { position: absolute; left: 24px; top: 16px; font-size: 18px; font-weight: 700; letter-spacing: .12em;
   color: color-mix(in srgb, var(--c) 70%, var(--ink-3)); opacity: .75; }
 .focusing .region { opacity: .35; }
+/* 地块本身不接鼠标（不挡拖动和点空白），只有收起按钮接 */
+.region-hide { position: absolute; right: 22px; top: 14px; padding: 3px 16px; border-radius: 99px; font-size: 16px; font-weight: 600; pointer-events: auto; cursor: pointer;
+  color: color-mix(in srgb, var(--c) 75%, var(--ink-3)); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); background: var(--panel-solid); opacity: .6; }
+.region-hide:hover { opacity: 1; border-color: var(--c); }
+.focusing .region-hide { display: none; }
 
 /* ---------- 对象：小图钉 ---------- */
 .ghost-handle { opacity: 0 !important; pointer-events: none !important; width: 1px !important; height: 1px !important; min-width: 0 !important; border: 0 !important; top: 50% !important; }
@@ -122,6 +135,20 @@ code { font: 11px/1.4 "Cascadia Mono", Consolas, monospace; color: var(--ink-2);
 .pin .cnt { min-width: 22px; padding: 0 6px; border-radius: 99px; background: color-mix(in srgb, var(--c) 13%, transparent); color: color-mix(in srgb, var(--c) 85%, var(--ink)); font-size: 11px; font-weight: 600; text-align: center; }
 .obj:hover .pin, .obj.on .pin { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--c); }
 .obj.inferred .pin { border-style: dashed; }
+/* 枢纽：双层描边 + 关系数角标，一眼看出它不是孤立的 */
+.obj.hub .pin { box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 16%, transparent), var(--shadow); border-color: var(--c); }
+.hub-badge { padding: 0 7px; border-radius: 99px; font-size: 11px; font-weight: 700; color: #fff; background: var(--c); }
+/* 枢纽 → 领域的合并线：粗、淡，和普通关系区分开 */
+.bundle { fill: none; stroke: var(--c, var(--road)); stroke-width: 5; vector-effect: non-scaling-stroke; stroke-linecap: round; opacity: .3; transition: opacity .25s; }
+.bundle.dim { opacity: .06; }
+.bundle-label { position: absolute; padding: 1px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; color: var(--ink-2);
+  background: var(--panel-solid); border: 1px solid var(--line-strong); white-space: nowrap; cursor: help; pointer-events: all; }
+/* 悬停时右上角出现收起；绝对定位，不改变卡片大小 */
+.pin { position: relative; }
+.pin-hide { position: absolute; right: -7px; top: -7px; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; line-height: 16px; text-align: center;
+  color: var(--ink-3); background: var(--panel-solid); border: 1px solid var(--line); box-shadow: var(--shadow); opacity: 0; transition: opacity .15s; cursor: pointer; }
+.obj:hover .pin-hide { opacity: 1; }
+.pin-hide:hover { color: #fff; background: var(--ink-3); }
 
 /* ---------- 对象：放大成街区 ---------- */
 .district { width: 620px; background: var(--panel-solid); border: 2px solid var(--c); border-radius: 22px; box-shadow: 0 0 0 8px color-mix(in srgb, var(--c) 12%, transparent), var(--shadow-lg);
@@ -175,6 +202,8 @@ code { font: 11px/1.4 "Cascadia Mono", Consolas, monospace; color: var(--ink-2);
 .conf.inferred { background: transparent; border: 1.5px dashed #cf8a0c; }
 .close { width: 30px; height: 30px; border-radius: 9px; color: var(--ink-3); align-self: flex-start; }
 .close:hover { background: var(--bg); color: var(--ink); }
+.d-hide { flex: none; align-self: flex-start; height: 30px; padding: 0 12px; border-radius: 9px; font-size: 12px; white-space: nowrap; color: var(--ink-3); border: 1px solid var(--line); }
+.d-hide:hover { color: var(--ink); border-color: var(--line-strong); background: var(--bg); }
 .d-body { padding: 2px 18px 16px; cursor: default; display: flex; flex-direction: column; gap: 14px; }
 .sec h3 { display: flex; align-items: baseline; gap: 6px; margin: 0 0 8px; font-size: 11px; color: var(--ink-3); font-weight: 600; letter-spacing: .06em; }
 .sec h3 em { font-style: normal; color: var(--ink-3); opacity: .7; }
@@ -260,14 +289,15 @@ button.chip:hover { border-color: var(--ink-3); background: var(--panel-solid); 
 .sec.code { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 10px; background: var(--bg); }
 
 /* ---------- 连线：道路 ---------- */
-.road { fill: none; stroke: var(--road); stroke-width: 1.6; transition: stroke .25s, opacity .25s, stroke-width .25s; }
+.road { fill: none; stroke: var(--road); stroke-width: 1.6; transition: stroke .25s, opacity .25s; }
 .road.inferred { stroke-dasharray: 5 5; }
 .road.on { stroke: var(--road-on); stroke-width: 2.4; }
 .road.dim { opacity: .14; }
 .road-halo { fill: none; stroke: var(--paper); stroke-width: 7; opacity: .9; }
 .road-halo.dim { opacity: 0; }
 .road-label { position: absolute; display: flex; align-items: center; gap: 5px; padding: 1px 8px; border-radius: 99px; background: var(--panel-solid);
-  border: 1px solid var(--line); color: var(--ink-2); font-size: 11px; white-space: nowrap; pointer-events: all; transition: opacity .25s; }
+  border: 1px solid var(--line); color: var(--ink-2); font-size: 11px; white-space: nowrap; pointer-events: none; transition: opacity .25s; }
+/* 标签不接鼠标：悬停对象时冒出来的标签压在对象上，会抢走悬停，来回闪 */
 .road-label b { font-weight: 600; color: var(--ink-3); font-size: 10px; }
 .road-label.inferred { border-style: dashed; }
 .road-label.on { color: var(--ink); border-color: var(--line-strong); box-shadow: var(--shadow); z-index: 5; }

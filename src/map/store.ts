@@ -243,8 +243,59 @@ export const sourceDefs: { key: Source; name: string; hint: string }[] = [
 ];
 export const sourceOf = (f: Fn): Source => f.source ?? 'page';
 
-export const visibleRel = (r: Relation) => layers.relations && (layers.inferred || r.confidence === 'confirmed');
-export const cardinality = (c: string) => ({ '1-1': '1:1', '1-n': '1:N', 'n-n': 'N:N' }[c] ?? c);
+/** 已经懂了、不想再看的领域和对象：从地图上收起，关系里也不再出现；按项目记在本机浏览器 */
+const hiddenKey = `atlas.hidden.${map.project.name}`;
+function loadHidden() {
+  try { return { domains: [], objects: [], ...JSON.parse(localStorage.getItem(hiddenKey) || '{}') }; } catch { return { domains: [], objects: [] }; }
+}
+export const hidden = reactive<{ domains: string[]; objects: string[] }>(loadHidden());
+watch(hidden, v => { try { localStorage.setItem(hiddenKey, JSON.stringify(v)); } catch { /* 无痕模式等 */ } });
+export const isHidden = (id: string) => hidden.objects.includes(id) || hidden.domains.includes(objById.get(id)?.domainId ?? '');
+export const toggleIn = (list: string[], id: string) => { const i = list.indexOf(id); if (i < 0) list.push(id); else list.splice(i, 1); };
+/** 收起对象时，它所在的整个领域都收起了就记成收起领域；反过来打开领域里的一个对象，就把领域拆开 */
+export function toggleObject(id: string) {
+  if (ui.hover === id) ui.hover = '';
+  const d = objById.get(id)!.domainId;
+  if (hidden.domains.includes(d)) {
+    toggleIn(hidden.domains, d);
+    map.objects.filter(o => o.domainId === d && o.id !== id && !hidden.objects.includes(o.id)).forEach(o => hidden.objects.push(o.id));
+    return;
+  }
+  toggleIn(hidden.objects, id);
+}
+export function toggleDomain(id: string) {
+  if (objById.get(ui.hover)?.domainId === id) ui.hover = '';
+  toggleIn(hidden.domains, id);
+  const members = new Set(map.objects.filter(o => o.domainId === id).map(o => o.id));
+  hidden.objects = hidden.objects.filter(o => !members.has(o));
+}
+
+export const visibleRel = (r: Relation) => layers.relations && (layers.inferred || r.confidence === 'confirmed') && !isHidden(r.source) && !isHidden(r.target);
+/** 连了很多对象的枢纽（平台、机构这类全局范围）：全图下不画它的线，悬停或放大时才画，否则满屏都是它 */
+const degree = new Map<string, number>();
+map.relations.forEach(r => [r.source, r.target].forEach(id => degree.set(id, (degree.get(id) ?? 0) + 1)));
+export const isHub = (id: string) => (degree.get(id) ?? 0) > 8;
+/**
+ * 枢纽连到别的领域的线：全图下按领域合成一条粗线（「平台 → 招生与学员 · 7 个」），悬停或放大枢纽时再拆开。
+ * 同领域内的、两个枢纽之间的不画粗线：看角标就知道，悬停再看逐条
+ */
+export function foldedBy(r: Relation) {
+  return isHub(r.source) ? r.source : isHub(r.target) ? r.target : '';
+}
+export interface Bundle { id: string; hub: string; domainId: string; rels: Relation[] }
+export const bundles: Bundle[] = [];
+map.relations.forEach(r => {
+  const hub = foldedBy(r);
+  if (!hub) return;
+  const domainId = objById.get(r.source === hub ? r.target : r.source)!.domainId;
+  if (domainId === objById.get(hub)!.domainId || isHub(r.source) === isHub(r.target)) return;
+  const id = `bundle:${hub}:${domainId}`;
+  const b = bundles.find(x => x.id === id) ?? bundles[bundles.push({ id, hub, domainId, rels: [] }) - 1];
+  b.rels.push(r);
+});
+/** 线不多时标签全显示；线多了全图只给高亮的线显示标签 */
+export const fewRelations = map.relations.length <= 40;
+export const cardinality =(c: string) => ({ '1-1': '1:1', '1-n': '1:N', 'n-n': 'N:N' }[c] ?? c);
 
 export function neighbors(id: string) {
   const set = new Set([id]);

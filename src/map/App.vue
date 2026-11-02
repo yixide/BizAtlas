@@ -7,10 +7,11 @@ import { MiniMap } from '@vue-flow/minimap';
 import ObjectNode from './ObjectNode.vue';
 import RegionNode from './RegionNode.vue';
 import RoadEdge from './RoadEdge.vue';
+import BundleEdge from './BundleEdge.vue';
 import ListPanel from './ListPanel.vue';
 import ProcessView from './ProcessView.vue';
 import AskAi from './AskAi.vue';
-import { actions, colorOf, history, layers, map, moduleOfOp, objById, snap, snapLabel, ui, type OpenOpts } from './store';
+import { actions, bundles, colorOf, hidden, history, isHidden, layers, map, moduleOfOp, objById, snap, snapLabel, ui, type OpenOpts } from './store';
 import { boundsOf, pushAway, seedPositions, type Size, type XY } from './layout';
 
 const { dimensions, findNode, fitBounds, setCenter, viewport } = useVueFlow('atlas');
@@ -21,24 +22,29 @@ const compact: Record<string, Size> = {};
 
 const nodes = ref<Node[]>([
   ...map.domains.map(d => ({
-    id: `region:${d.id}`, type: 'region', position: { x: 0, y: 0 }, data: { name: d.name, color: colorOf(d.id), w: 10, h: 10 },
+    id: `region:${d.id}`, type: 'region', position: { x: 0, y: 0 }, data: { id: d.id, name: d.name, color: colorOf(d.id), w: 10, h: 10 },
     draggable: false, selectable: false, focusable: false, zIndex: -1, class: 'region-node',
   })),
   ...map.objects.map(o => ({ id: o.id, type: 'object', position: { ...home[o.id] }, data: {}, zIndex: 1 })),
 ]);
-const edges = ref<Edge[]>(map.relations.map(r => ({
-  id: r.id, type: 'road', source: r.source, target: r.target, data: { rel: r },
-  markerEnd: { type: MarkerType.ArrowClosed, width: 14, height: 14, color: '#9aa0aa' },
-})));
+const edges = ref<Edge[]>([
+  ...map.relations.map(r => ({
+    id: r.id, type: 'road', source: r.source, target: r.target, data: { rel: r },
+    markerEnd: { type: MarkerType.ArrowClosed, width: 14, height: 14, color: '#9aa0aa' },
+  })),
+  ...bundles.map(b => ({ id: b.id, type: 'bundle', source: b.hub, target: `region:${b.domainId}`, data: { bundle: b }, zIndex: -1 })),
+]);
 
 const node = (id: string) => findNode(id) as GraphNode | undefined;
 const frame = () => new Promise(r => requestAnimationFrame(r));
 
 function updateRegions() {
   for (const d of map.domains) {
-    const members = map.objects.filter(o => o.domainId === d.id && o.id !== ui.focus).map(o => node(o.id)).filter(Boolean) as GraphNode[];
+    const members = map.objects.filter(o => o.domainId === d.id && o.id !== ui.focus && !isHidden(o.id)).map(o => node(o.id)).filter(Boolean) as GraphNode[];
     const region = node(`region:${d.id}`);
-    if (!members.length || !region) continue;
+    if (!region) continue;
+    region.hidden = !members.length;
+    if (!members.length) continue;
     const xs = members.flatMap(n => [n.position.x, n.position.x + n.dimensions.width]);
     const ys = members.flatMap(n => [n.position.y, n.position.y + n.dimensions.height]);
     const x = Math.min(...xs) - 48, y = Math.min(...ys) - 70;
@@ -65,7 +71,9 @@ function tween(target: Record<string, XY>, ms: number) {
 }
 
 const center = (id: string) => ({ x: home[id].x + compact[id].w / 2, y: home[id].y + compact[id].h / 2 });
-const allBounds = () => boundsOf(ids, home, compact);
+const shownIds = () => { const s = ids.filter(id => !isHidden(id)); return s.length ? s : ids; };
+/** 连地块的标题栏一起框进来，免得顶上的领域名和收起按钮被图层栏挡住 */
+const allBounds = () => { const b = boundsOf(shownIds(), home, compact); return { x: b.x - 48, y: b.y - 110, width: b.width + 96, height: b.height + 150 }; };
 
 /** also：顺着关系跳过来时，把出发的对象也框进镜头，看得出是从哪来的 */
 function layoutFocus(camera: boolean, also = '') {
@@ -83,10 +91,11 @@ function layoutFocus(camera: boolean, also = '') {
     const x = Math.min(box.x, p.x), y = Math.min(box.y, p.y);
     box = { x, y, width: Math.max(box.x + w, p.x + s.w) - x, height: Math.max(box.y + h, p.y + s.h) - y };
   }
-  // 卡片宽约占画布三分之一（面积约九分之一），周围对象还看得见；内容再多就在卡片里滚动，镜头对准卡片顶部
+  // 先保证字看得清：卡片按原大（缩放 1）显示，大屏上自然只占画布三分之一左右，周围对象还看得见；
+  // 小屏放不下才缩，最多缩到 0.8，再小字就看不清了，宁可卡片比画布宽一点。内容再多就在卡片里滚动，镜头对准卡片顶部
   const W = dimensions.value.width, H = dimensions.value.height;
   const fitW = W / (box.width * 1.15);
-  const zoom = Math.max(0.6, Math.min(W / 3 / w, fitW, 1));
+  const zoom = Math.max(0.8, Math.min((W * 0.88) / w, fitW, 1));
   const cy = box.height * zoom > H * 0.9 ? box.y + (H * 0.45) / zoom : box.y + box.height / 2;
   setCenter(box.x + box.width / 2, cy, { zoom, duration: 650 });
 }
@@ -169,12 +178,26 @@ watch(() => [layers.functions, layers.relations, layers.tables, layers.code], as
   updateRegions();
 });
 
+/** 收起的对象不画；正放大着的被收起了就回到全图 */
+function applyHidden() {
+  for (const id of ids) { const n = node(id); if (n) n.hidden = isHidden(id); }
+  updateRegions();
+}
+watch(() => JSON.stringify(hidden), async () => {
+  applyHidden();
+  if (ui.focus && isHidden(ui.focus)) await close();
+  else if (!ui.focus) fitBounds(allBounds(), { padding: 0.1, duration: 500 });
+});
+
+let ready = false;
 function onReady() {
+  if (ready) return;
+  ready = true;
   for (const id of ids) {
     const n = node(id)!;
     compact[id] = { w: n.dimensions.width, h: n.dimensions.height };
   }
-  updateRegions();
+  applyHidden();
   fitBounds(allBounds(), { padding: 0.1 });
 }
 function onDragStop({ node: n }: { node: GraphNode }) {
@@ -246,6 +269,7 @@ const hasProcess = moduleOfOp.size > 0;
             <template #node-object="p"><ObjectNode :id="p.id" /></template>
             <template #node-region="p"><RegionNode :data="p.data" /></template>
             <template #edge-road="p"><RoadEdge v-bind="p" /></template>
+            <template #edge-bundle="p"><BundleEdge v-bind="p" /></template>
             <Background :gap="22" :size="1.3" />
             <MiniMap pannable zoomable :node-color="miniColor" :node-border-radius="10" />
             <Controls position="bottom-left" :show-interactive="false" />

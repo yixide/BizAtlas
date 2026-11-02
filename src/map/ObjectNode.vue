@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { Handle, Position } from '@vue-flow/core';
 import {
   actions, cardinality, chainOf, codeAt, colorOf, functions, isCode, kindOrder, kindStyle, layers, litObject, modulesOf, objById, objColor,
-  opOfFn, ownerOfTable, proc, provinceLabel, provinceModes, relationsOf, showOp, sourceDefs, sourceOf, statsOf, tableById, tableCols, tableLinksOf, ui,
+  opOfFn, ownerOfTable, proc, provinceLabel, provinceModes, relationsOf, showOp, sourceDefs, sourceOf, statsOf, tableById, tableCols, tableLinksOf, toggleObject, ui, isHub,
   type Fn, type Source, type Tab, type TableLink,
 } from './store';
 
@@ -14,6 +14,7 @@ const expanded = computed(() => ui.focus === props.id);
 const state = computed(() => litObject(props.id));
 const fnCount = computed(() => functions[props.id]?.length ?? 0);
 const rels = computed(() => relationsOf(props.id));
+const hub = isHub(props.id);
 const upstream = computed(() => rels.value.filter(r => r.dir === 'in'));
 const downstream = computed(() => rels.value.filter(r => r.dir === 'out'));
 const tables = computed(() => obj.value.tableRefs.map(r => ({ ...tableById.get(r.tableId)!, role: r.role })));
@@ -98,7 +99,7 @@ function pickOp(i: number) {
 </script>
 
 <template>
-  <div class="obj" :class="[state, { core: obj.importance === 'core', expanded, inferred: obj.confidence === 'inferred' }]" :style="{ '--c': color }">
+  <div class="obj" :class="[state, { hub, core: obj.importance === 'core', expanded, inferred: obj.confidence === 'inferred' }]" :style="{ '--c': color }">
     <Handle type="target" :position="Position.Top" class="ghost-handle" />
     <Handle type="source" :position="Position.Bottom" class="ghost-handle" />
 
@@ -106,6 +107,8 @@ function pickOp(i: number) {
       <span class="mark">{{ obj.name[0] }}</span>
       <span class="label">{{ obj.name }}</span>
       <span v-if="layers.functions && fnCount" class="cnt" title="功能数">{{ fnCount }}</span>
+      <span v-if="hub && layers.relations && rels.length" class="hub-badge" :title="`和 ${rels.length} 个对象有关系：全图下按领域合成粗线，悬停这里看逐条`">⟷ {{ rels.length }}</span>
+      <button class="pin-hide nodrag" title="已经懂了，从地图上收起（左侧列表里可以放回）" @click.stop="toggleObject(id)">✕</button>
     </div>
 
     <div v-else class="district" :class="{ mini: !tab }">
@@ -116,7 +119,8 @@ function pickOp(i: number) {
           <h2>{{ obj.name }}<i class="conf" :class="obj.confidence" :title="obj.confidence === 'confirmed' ? '有代码证据' : 'AI 推断'" /></h2>
           <p>{{ obj.summary.text }}</p>
         </div>
-        <button class="close nodrag" title="收起卡片（Esc）" @click.stop="actions.close()">✕</button>
+        <button class="d-hide nodrag" title="已经懂了，从地图上收起（左侧列表里可以放回）" @click.stop="toggleObject(id)">从地图收起</button>
+        <button class="close nodrag" title="关闭卡片（Esc）" @click.stop="actions.close()">✕</button>
       </header>
 
       <nav class="d-tabs nodrag">

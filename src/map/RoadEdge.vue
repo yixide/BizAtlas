@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { EdgeLabelRenderer, type EdgeProps, type GraphNode } from '@vue-flow/core';
 import type { Relation } from '../model';
-import { cardinality, codeAt, isCode, layers, litRelation, visibleRel } from './store';
+import { cardinality, codeAt, fewRelations, foldedBy, isCode, layers, litRelation, visibleRel } from './store';
 
 const props = defineProps<EdgeProps<{ rel: Relation }>>();
 const rel = computed(() => props.data!.rel);
@@ -23,15 +23,19 @@ const geo = computed(() => {
   return { d: `M${a.x},${a.y} L${b.x},${b.y}`, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 });
 const state = computed(() => litRelation(rel.value));
+/** 合进粗线的那些：只在亮起时单独画 */
+const shown = computed(() => visibleRel(rel.value) && (state.value === 'on' || !foldedBy(rel.value)));
+const labeled = computed(() => layers.labels && (state.value === 'on' || (fewRelations && state.value === '')));
 const code = computed(() => rel.value.evidence.filter(e => isCode(e.file)));
 const evidence = computed(() => code.value.map(codeAt).join('\n'));
 </script>
 
 <template>
-  <template v-if="visibleRel(rel)">
-    <path :d="geo.d" class="road-halo" :class="state" />
+  <template v-if="shown">
+    <!-- 变暗的线不画白边、不画标签：线多时省下大量绘制 -->
+    <path v-if="state !== 'dim'" :d="geo.d" class="road-halo" :class="state" />
     <path :d="geo.d" class="road" :class="[state, rel.confidence]" :marker-end="markerEnd" />
-    <EdgeLabelRenderer v-if="layers.labels">
+    <EdgeLabelRenderer v-if="labeled">
       <div class="road-label nodrag nopan" :class="[state, rel.confidence]"
         :style="{ transform: `translate(-50%, -50%) translate(${geo.x}px, ${geo.y}px)` }">
         {{ rel.label }}<b>{{ cardinality(rel.cardinality) }}</b>
