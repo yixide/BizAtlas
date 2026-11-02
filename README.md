@@ -103,7 +103,7 @@ cp -r skills/bizatlas ~/.claude/skills/
 
 AI 会依次完成：
 
-1. 确认源码范围和地图放在哪：默认放在 BizAtlas 的 `.local/` 下，只留在本机；你同意的话也可以放进项目的 `.bizatlas/`，跟着代码提交给团队。
+1. 确认源码范围：还有没有别的仓库、先做哪些模块（AI 会先扫一遍列给你挑）；再确认地图放在哪：默认放在 BizAtlas 的 `.local/` 下，只留在本机；你同意的话也可以放进项目的 `.bizatlas/`，跟着代码提交给团队。
 2. 整理领域、业务对象、表目录、对象关系和主要业务流程，写入 `map.json` 并校验。
 3. 补充功能清单 `functions.json`、表字段 `tables.json`、操作先后 `process.json`。
 4. 把项目登记到 BizAtlas，打开查看器，汇报覆盖了多少内容、哪些是推断、哪些需要人工核对。
@@ -118,12 +118,15 @@ BizAtlas 在本机只装一份，所有项目共用。每个项目的地图登�
 {
   "projects": [
     { "id": "my-app", "name": "我的应用", "dataDir": ".local/my-app/.bizatlas", "sourceDir": "D:/work/my-app" },
-    { "id": "shop", "name": "商城", "dataDir": "D:/work/shop/.bizatlas", "sourceDir": "D:/work/shop" }
+    { "id": "shop", "name": "商城", "dataDir": "D:/work/shop/.bizatlas",
+      "sources": { "shop": "D:/work/shop", "gateway": "D:/work/shop-gateway" } }
   ]
 }
 ```
 
-`dataDir` 可以在 BizAtlas 的 `.local/` 下，也可以在项目自己的仓库里；`sourceDir` 可选，配了才能使用「问 AI」。
+`dataDir` 可以在 BizAtlas 的 `.local/` 下，也可以在项目自己的仓库里；源码目录可选，配了才能使用「问 AI」。
+
+**一个系统分在多个仓库里**（比如主系统和独立运行的对接服务共用一个数据库）：画在同一张地图上，用 `sources` 登记每个仓库，第一个是主仓库。地图里来自其他仓库的代码位置显示为 `gateway:src/x.cs:18`，「问 AI」会在这些仓库里一起查。以后想加仓库，在那个仓库里对 AI 说「把这个仓库加进 shop 的业务地图」即可。示例里的「一卡通回调」和「办理借阅证」演示了这种写法。
 
 ### 打开你的地图
 
@@ -164,7 +167,7 @@ npm run dev -- --data D:/work/my-app/.bizatlas --source D:/work/my-app
 ## 「问 AI」的配置
 
 1. 安装并登录 [Codex CLI](https://github.com/openai/codex)，确保命令行里能直接运行 `codex`。
-2. 在 `.local/projects.json` 里给项目配 `sourceDir`，或启动时用 `--source` 指定源码目录。
+2. 在 `.local/projects.json` 里给项目配 `sourceDir` 或多仓库的 `sources`，或启动时用 `--source` 指定源码目录。
 
 没配置源码目录时，页面上不会出现「问 AI」。Codex 以只读沙箱运行，不会修改你的代码；它的耗时和费用由你自己的 Codex 账号承担。
 

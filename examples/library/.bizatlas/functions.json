@@ -17,7 +17,7 @@
   "card": [
     { "name": "办理借阅证", "group": "借阅证", "kind": "add", "kindName": "新增", "http": "POST /card/add", "method": "Add", "file": "src/controllers/CardController.cs", "line": 22, "source": "page", "callers": ["views/card/index.vue"] },
     { "name": "挂失", "group": "借阅证", "kind": "state", "kindName": "状态变更", "http": "POST /card/lost", "method": "ReportLost", "file": "src/controllers/CardController.cs", "line": 38, "source": "page", "callers": ["views/card/index.vue"] },
-    { "name": "一卡通回调", "group": "外部对接", "kind": "record", "kindName": "上报同步", "http": "POST /card/callback", "method": "Callback", "file": "src/controllers/CardController.cs", "line": 60, "source": "ext" }
+    { "name": "一卡通回调", "group": "外部对接", "kind": "record", "kindName": "上报同步", "http": "POST /card/callback", "method": "Callback", "repo": "gateway", "file": "src/handlers/CardCallback.cs", "line": 18, "source": "ext" }
   ],
   "book": [
     { "name": "书目列表", "group": "书目", "kind": "query", "kindName": "查询", "http": "GET /book/list", "method": "List", "file": "src/controllers/BookController.cs", "line": 14, "source": "page", "callers": ["views/book/index.vue"] },

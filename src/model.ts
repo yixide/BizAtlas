@@ -1,5 +1,6 @@
 export type Confidence = 'confirmed' | 'inferred';
-export interface Evidence { file: string; line: number; excerpt?: string }
+/** repo 是 project.repos 里的仓库标识，不写就是第一个仓库 */
+export interface Evidence { repo?: string; file: string; line: number; excerpt?: string }
 export interface Sourced { confidence: Confidence; evidence: Evidence[] }
 export interface Claim extends Sourced { text: string }
 export interface Domain { id: string; name: string; description: string }
@@ -18,7 +19,11 @@ export interface Step extends Sourced {
 }
 export interface Flow extends Sourced { id: string; name: string; description: string; objectIds: string[]; steps: Step[] }
 export interface AtlasMap {
-  schemaVersion: '0'; project: { name: string; description: string; generatedAt: string; sourceRevision?: string };
+  schemaVersion: '0'; project: {
+    name: string; description: string; generatedAt: string; sourceRevision?: string;
+    /** 系统由多个仓库组成时列出来，第一个是主仓库 */
+    repos?: { id: string; name: string }[];
+  };
   domains: Domain[]; objects: BusinessObject[]; relations: Relation[]; tables: Table[]; flows: Flow[];
   layout?: { positions: Record<string, { x: number; y: number }> };
 }

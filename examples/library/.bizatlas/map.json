@@ -3,7 +3,11 @@
   "project": {
     "name": "云杉图书馆 · 虚构示例",
     "description": "从分馆与读者出发，理解办证、借阅与馆藏组织。所有业务、表名与规则均为虚构设计。",
-    "generatedAt": "2026-10-31T10:00:00Z"
+    "generatedAt": "2026-10-31T10:00:00Z",
+    "repos": [
+      { "id": "library", "name": "图书馆主系统" },
+      { "id": "gateway", "name": "一卡通对接服务" }
+    ]
   },
   "domains": [
     {

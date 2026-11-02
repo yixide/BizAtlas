@@ -34,11 +34,16 @@ export function readMap(directory) {
       [...step.reads, ...step.writes].forEach(id => check(map.tables, id, flow.name));
     }
   }
+  const repos = new Set((map.project.repos ?? []).map(r => r.id));
   const inspect = value => {
     if (!value || typeof value !== 'object') return;
     if (value.confidence === 'confirmed' && (!value.evidence || value.evidence.length === 0)) {
       throw new Error('“已确认”信息必须附证据');
     }
+    // 证据不写 repo 就是第一个仓库；写了必须在 project.repos 里声明过
+    (Array.isArray(value.evidence) ? value.evidence : []).forEach(e => {
+      if (e.repo && !repos.has(e.repo)) throw new Error(`证据引用了没在 project.repos 里声明的仓库：${e.repo}`);
+    });
     Object.values(value).forEach(inspect);
   };
   inspect(map);

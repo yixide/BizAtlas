@@ -83,8 +83,9 @@
       "pre": [{ "op": "reader.add" }, { "op": "branch.add", "note": "在哪个分馆办证" }],
       "picks": [{ "objectId": "reader", "label": "读者" }, { "objectId": "branch", "label": "办证分馆" }],
       "writes": [{ "name": "借阅证", "tableName": "reader_card", "why": "生成证号和有效期" }],
-      "province": { "mode": "sync", "text": "示例：办证时当场向城市一卡通平台登记证号" },
-      "evidence": [], "confidence": "inferred"
+      "province": { "mode": "sync", "text": "示例：办证后由一卡通对接服务向城市一卡通平台登记证号" },
+      "evidence": [{ "file": "src/controllers/CardController.cs", "line": 22 }, { "repo": "gateway", "file": "src/jobs/CardRegister.cs", "line": 24 }],
+      "confidence": "inferred"
     },
     "loan.add": {
       "objectId": "loan", "name": "借出图书", "action": "新增", "page": "借还台",

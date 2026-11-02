@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
-import { map, modulesOf, objById, proc, ui } from './store';
+import { codeAt, map, modulesOf, objById, proc, ui } from './store';
 
 /** 划词 → 旁边出「问 AI」→ 开发服务器调本机 AI 命令行，在源码里找真源 */
 interface Ask { text: string; question: string; context: string[]; logs: string[]; answer: string; error: string; busy: boolean; ctrl?: AbortController }
@@ -18,13 +18,13 @@ function contextNow() {
   if (ui.view === 'process' && ui.pop && proc.ops[ui.pop]) {
     const op = proc.ops[ui.pop];
     c.push(`流程图里选中的操作：${objById.get(op.objectId)?.name ?? op.objectId} · ${op.name}`);
-    op.evidence?.forEach(e => c.push(`该操作的代码位置：${e.file}:${e.line}`));
+    op.evidence?.forEach(e => c.push(`该操作的代码位置：${codeAt(e)}`));
   } else if (ui.focus) {
     c.push(`正在看的对象：${objById.get(ui.focus)?.name}`);
     if (ui.module) {
       c.push(`功能模块：${ui.module}`);
       const f = modulesOf(ui.focus, ui.source).find(m => m.name === ui.module)?.fns[ui.op];
-      if (f) c.push(`选中的操作：${f.name}（${f.kindName}）${f.http ? `，接口 ${f.method} ${f.http}` : ''}${f.file ? `，代码 ${f.file}:${f.line}` : ''}`);
+      if (f) c.push(`选中的操作：${f.name}（${f.kindName}）${f.http ? `，接口 ${f.method} ${f.http}` : ''}${f.file ? `，代码 ${codeAt(f)}` : ''}`);
     }
   }
   return c;

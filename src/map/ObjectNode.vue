@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { Handle, Position } from '@vue-flow/core';
 import {
-  actions, cardinality, chainOf, colorOf, functions, isCode, kindOrder, kindStyle, layers, litObject, modulesOf, objById, objColor,
+  actions, cardinality, chainOf, codeAt, colorOf, functions, isCode, kindOrder, kindStyle, layers, litObject, modulesOf, objById, objColor,
   opOfFn, ownerOfTable, proc, provinceLabel, provinceModes, relationsOf, showOp, sourceDefs, sourceOf, statsOf, tableById, tableCols, tableLinksOf, ui,
   type Fn, type Source, type Tab, type TableLink,
 } from './store';
@@ -18,7 +18,7 @@ const upstream = computed(() => rels.value.filter(r => r.dir === 'in'));
 const downstream = computed(() => rels.value.filter(r => r.dir === 'out'));
 const tables = computed(() => obj.value.tableRefs.map(r => ({ ...tableById.get(r.tableId)!, role: r.role })));
 const evidence = computed(() => [...obj.value.evidence, ...obj.value.summary.evidence]
-  .filter((e, i, all) => isCode(e.file) && all.findIndex(x => x.file === e.file && x.line === e.line) === i));
+  .filter((e, i, all) => isCode(e.file) && all.findIndex(x => codeAt(x) === codeAt(e)) === i));
 
 const tabs = computed(() => {
   const list: { tab: Tab; label: string; icon: string; n: number }[] = statsOf(props.id).filter(s => s.n > 0);
@@ -145,7 +145,7 @@ function pickOp(i: number) {
           <div v-if="activeModule" class="ops">
             <button v-for="(f, i) in activeModule.fns" :key="i" class="op" :class="{ on: ui.op === i }"
               :style="{ '--k': kindStyle(f.kindName).color }" :data-ask="f.name"
-              :data-ask-hint="`右键的这个操作：${f.name}（${f.kindName}）${f.http ? `，接口 ${f.method} ${f.http}` : ''}${f.file ? `，代码 ${f.file}:${f.line}` : ''}`" @click.stop="pickOp(i)">
+              :data-ask-hint="`右键的这个操作：${f.name}（${f.kindName}）${f.http ? `，接口 ${f.method} ${f.http}` : ''}${f.file ? `，代码 ${codeAt(f)}` : ''}`" @click.stop="pickOp(i)">
               <i>{{ kindStyle(f.kindName).short }}</i>{{ f.name }}<span v-if="inProc(f)" class="in-proc" title="在流程图里">⟿</span>
             </button>
           </div>
@@ -155,7 +155,7 @@ function pickOp(i: number) {
             <span v-if="pageCount(activeOp.callers)" class="muted">用在 {{ pageCount(activeOp.callers) }} 个页面</span>
             <template v-if="layers.code">
               <code>{{ activeOp.http }}</code>
-              <code>{{ activeOp.file }}:{{ activeOp.line }}</code>
+              <code>{{ codeAt(activeOp) }}</code>
               <code v-for="c in activeOp.callers" :key="c" class="caller">{{ c }}</code>
             </template>
             <span v-else class="muted">打开「代码」图层可看接口与位置</span>
@@ -256,7 +256,7 @@ function pickOp(i: number) {
         </section>
 
         <section v-else-if="tab === 'code'" class="sec code">
-          <code v-for="(e, i) in evidence" :key="i" :title="e.excerpt">{{ e.file }}:{{ e.line }}</code>
+          <code v-for="(e, i) in evidence" :key="i" :title="e.excerpt">{{ codeAt(e) }}</code>
         </section>
       </div>
 

@@ -13,7 +13,7 @@ your-project/
 | 字段 | 含义 |
 | --- | --- |
 | `schemaVersion` | 固定字符串 `"0"`；不支持的版本拒绝加载 |
-| `project` | 项目名称、业务说明、生成时间，可选源码版本 `sourceRevision` |
+| `project` | 项目名称、业务说明、生成时间，可选源码版本 `sourceRevision`；系统由多个仓库组成时，可选 `repos` 列出各仓库 `{id, name}`，第一个是主仓库 |
 | `domains` | 领域：`id`、`name`、`description` |
 | `objects` | 业务对象 |
 | `relations` | 有向业务关系 |
@@ -30,7 +30,7 @@ your-project/
 - `tableRefs` 用 `{tableId, role: primary | supporting}` 指向表目录。表目录包含 `id`、中文 `name`、实际 `tableName`、`confidence`、`evidence`。
 - 对象层的可信度表示对象及主表识别；说明、前提、表、关系、流程及步骤各自独立标注，不能从对象层向下继承“已确认”。表关联角色在 v0 作为对象映射的一部分，与其证据一同核对。
 
-`confidence` 只有两种值：`confirmed`（已确认）、`inferred`（推断）。所有信息显式提供 `evidence`，推断允许空数组；已确认必须至少有一条证据。证据为 `{file, line, excerpt?}`，行号从 1 开始。路径默认相对于源码根目录；`@atlas/` 前缀表示查看器工作目录中的参考材料。证据只在默认折叠的证据区域显示。
+`confidence` 只有两种值：`confirmed`（已确认）、`inferred`（推断）。所有信息显式提供 `evidence`，推断允许空数组；已确认必须至少有一条证据。证据为 `{repo?, file, line, excerpt?}`，行号从 1 开始。路径默认相对于源码根目录；多仓库时 `repo` 写 `project.repos` 里的仓库标识，路径相对该仓库根目录，不写 `repo` 就是第一个仓库，界面显示为 `仓库标识:文件:行号`；`@atlas/` 前缀表示查看器工作目录中的参考材料。证据只在默认折叠的证据区域显示。
 
 已确认意味着代码或建表定义支持该信息，**不是数据库现场核对或业务运行验证**。AI 归纳的作用、流程、顺序和读写范围应保留推断标记。虚构样例的全部内容均标为推断。
 
@@ -83,7 +83,7 @@ your-project/
 | `name` / `group` | 功能名（用业务话说，如「借出图书」）；分组，通常是页面或控制器里的一块 |
 | `kind` / `kindName` | 动作类型代码和中文名。`kindName` 取 `查询`、`新增`、`编辑`、`删除`、`审批`、`状态变更`、`导入`、`导出`、`上报同步`、`其他` 之一，决定颜色和排序 |
 | `http` / `method` | 接口（`方法 路径`）和后端方法名；没有 HTTP 的写空字符串 |
-| `file` / `line` | 功能定义的位置，相对源码根目录 |
+| `repo` / `file` / `line` | 功能定义的位置，相对源码根目录；`repo` 可选，多仓库时写仓库标识，规则同证据 |
 | `source` | 可选，谁在用：`page` 管理页面、`quick` 给其他功能调的快速接口（下拉、校验）、`ext` 外部对接、`unused` 没找到调用处。缺省按 `page` |
 | `callers` | 可选，调用它的前端文件；以 `views/` 开头的计为页面数 |
 
@@ -124,7 +124,7 @@ your-project/
 | `picks` | 做这个操作时要先选的上级：`{objectId, label}` |
 | `writes` | 数据存到哪些表：`{name, tableName?, why?}`；表名只在打开「代码」图层时显示 |
 | `province` | 和外部监管平台怎么交互：`mode` 为 `sync`（当场对接）、`manual`（另行上报）、`none`（不交互），`text` 写具体说明 |
-| `extras` / `evidence` | 额外说明；代码证据 `{file, line}`，只在「代码」图层显示 |
+| `extras` / `evidence` | 额外说明；代码证据 `{repo?, file, line}`，只在「代码」图层显示 |
 | `confidence` | `confirmed` 或 `inferred`，推断项节点用虚线框 |
 | `provinceLabel` | 可选，界面上外部平台的叫法，默认「外部平台」 |
 

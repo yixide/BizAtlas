@@ -7,7 +7,7 @@ import type { BusinessObject, Relation } from '../model';
 
 export type Source = 'page' | 'quick' | 'ext' | 'unused';
 export interface Fn {
-  name: string; group: string; kind: string; kindName: string; http: string; method: string; file: string; line: number;
+  name: string; group: string; kind: string; kindName: string; http: string; method: string; repo?: string; file: string; line: number;
   /** 谁在用：管理页面 / 给其他功能的快速接口 / 外部对接 / 前端没找到调用 */
   source?: Source; callers?: string[];
 }
@@ -27,7 +27,7 @@ export interface ProcOp {
   picks: { objectId: string; label: string }[];
   writes: TableUse[];
   province?: { mode: 'sync' | 'manual' | 'none'; text: string };
-  extras?: string[]; evidence?: { file: string; line: number }[];
+  extras?: string[]; evidence?: { repo?: string; file: string; line: number }[];
   confidence: 'confirmed' | 'inferred';
 }
 export interface ProcModule { id: string; name: string; ops: string[] }
@@ -232,6 +232,8 @@ export function showOp(id: string) {
 
 /** 只有程序代码算代码证据；建表 SQL 在 ORM 下只是留档，AI 参考图也不算 */
 export const isCode = (file: string) => !/\.(sql|json|md)$/i.test(file);
+/** 代码位置的写法：多仓库时在前面带上仓库标识，比如 gateway:src/x.cs:18 */
+export const codeAt = (e: { repo?: string; file: string; line: number }) => `${e.repo ? `${e.repo}:` : ''}${e.file}:${e.line}`;
 
 export const sourceDefs: { key: Source; name: string; hint: string }[] = [
   { key: 'page', name: '管理页面', hint: '前端页面上的操作' },

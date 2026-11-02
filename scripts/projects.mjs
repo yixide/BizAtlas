@@ -1,5 +1,5 @@
 // 多项目：在 .local/projects.json 登记各项目的地图和源码目录，一个查看器里切换。
-// 当前项目落到 ATLAS_DATA_DIR / ATLAS_SOURCE_DIR，地图和「问 AI」都从这两个变量取。
+// 当前项目落到 ATLAS_DATA_DIR / ATLAS_SOURCES，地图和「问 AI」都从这两个变量取。
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,15 +16,27 @@ export function listProjects() {
   return [...list.map(p => ({
     id: p.id, name: p.name || p.id,
     dataDir: resolve(root, p.dataDir),
-    sourceDir: p.sourceDir ? resolve(root, p.sourceDir) : undefined,
-  })), example];
+    sources: sourcesOf(p),
+  })), { ...example, sources: [] }];
+}
+
+/** 源码仓库：sources 是 {仓库标识: 目录}，第一个是主仓库；只有一个仓库时也可以写 sourceDir */
+function sourcesOf(p) {
+  if (p.sources) return Object.entries(p.sources).map(([id, dir]) => ({ id, dir: resolve(root, dir) }));
+  return p.sourceDir ? [{ id: '', dir: resolve(root, p.sourceDir) }] : [];
 }
 
 function use(project) {
   process.env.ATLAS_PROJECT = project.id;
   process.env.ATLAS_DATA_DIR = project.dataDir;
-  if (project.sourceDir) process.env.ATLAS_SOURCE_DIR = project.sourceDir;
-  else delete process.env.ATLAS_SOURCE_DIR;
+  process.env.ATLAS_SOURCES = JSON.stringify(project.sources);
+  delete process.env.ATLAS_SOURCE_DIR;
+}
+
+/** 当前项目的源码仓库；--source 临时指定的只有一个 */
+export function currentSources() {
+  if (process.env.ATLAS_SOURCE_DIR) return [{ id: '', dir: process.env.ATLAS_SOURCE_DIR }];
+  try { return JSON.parse(process.env.ATLAS_SOURCES || '[]'); } catch { return []; }
 }
 
 /** 启动时选项目：--data 指定的目录 > --project > 上次打开的 > 第一个登记的 */
@@ -32,7 +44,7 @@ export function pickProject(id) {
   const list = listProjects();
   if (process.env.ATLAS_DATA_DIR) {
     const same = list.find(p => p.dataDir === process.env.ATLAS_DATA_DIR);
-    if (same) process.env.ATLAS_PROJECT = same.id;
+    if (same) use(same);
     return;
   }
   const last = existsSync(lastFile) ? readFileSync(lastFile, 'utf8').trim() : '';

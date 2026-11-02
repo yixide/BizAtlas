@@ -1,18 +1,26 @@
 // 「问 AI」：开发服务器把选中的词和地图上下文拼成提示词，交给本机 AI 命令行在源码目录里只读查找真源。
-// 只在本地开发服务器里有；源码目录由 ATLAS_SOURCE_DIR 指定，没配就不开放。
+// 只在本地开发服务器里有；源码仓库来自当前项目的登记或 --source，没配就不开放。
 import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { currentSources } from './projects.mjs';
 
-function promptOf({ text, question, context }) {
+function promptOf({ text, question, context }, sources) {
   const lines = [
     '你在一个业务系统的源码仓库里，只读，不得修改、创建或删除任何文件，不连数据库、不联网。',
+  ];
+  // 多仓库：都告诉它，地图上的代码位置写成「仓库标识:文件:行号」，不带仓库标识的在第一个仓库
+  if (sources.length > 1) {
+    lines.push('这个系统由多个仓库组成，都要查（第一个是当前目录）：', ...sources.map(s => `- ${s.id}：${s.dir}`),
+      '地图上的代码位置写成「仓库标识:文件:行号」，不带仓库标识的在第一个仓库。');
+  }
+  lines.push(
     '用户在「业务地图」页面上选中了一段文字，想知道它在代码里的真实含义。',
     '',
     `选中的文字：${text}`,
     question ? `用户的问题：${question}` : '用户的问题：这是什么意思？在代码里是怎么定义和使用的？',
-  ];
+  );
   if (context?.length) lines.push('', '页面上下文（用户当时在看的位置，帮助你缩小范围）：', ...context.map(c => `- ${c}`));
   lines.push(
     '',
@@ -21,7 +29,7 @@ function promptOf({ text, question, context }) {
     '',
     '用中文回答，面向不看代码的业务人员，格式：',
     '1. 第一行一句话结论：它是什么。',
-    '2. 「出处」：列出真源和关键使用处，每条写 `文件路径:行号` 加一句说明。',
+    `2. 「出处」：列出真源和关键使用处，每条写 \`${sources.length > 1 ? '仓库标识:' : ''}文件路径:行号\` 加一句说明。`,
     '3. 「解释」：用业务语言讲清楚它怎么起作用、有哪些取值或分支、和地图上的叫法是否一致。',
     '控制在 400 字以内。不要写「已应用某某规则/技能」、只读声明之类与问题无关的话。',
   );
@@ -33,16 +41,17 @@ export function askPlugin() {
     name: 'atlas-ask',
     configureServer(server) {
       server.middlewares.use('/__atlas/ask', (req, res) => {
-        const cwd = process.env.ATLAS_SOURCE_DIR;
+        const sources = currentSources().filter(s => existsSync(s.dir));
+        const cwd = sources[0]?.dir;
         if (req.method === 'GET') {
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(JSON.stringify({ ok: !!cwd && existsSync(cwd) }));
+          res.end(JSON.stringify({ ok: !!cwd }));
           return;
         }
         if (req.method !== 'POST') { res.statusCode = 405; res.end(); return; }
-        if (!cwd || !existsSync(cwd)) {
+        if (!cwd) {
           res.statusCode = 400;
-          res.end('没有配置源码目录：在 .local/projects.json 里给这个项目加 "sourceDir"，或启动时加 --source <目录>');
+          res.end('没有配置源码目录：在 .local/projects.json 里给这个项目加 "sources"，或启动时加 --source <目录>');
           return;
         }
         let body = '';
@@ -78,7 +87,7 @@ export function askPlugin() {
           });
           // 用户关掉或取消：结束 codex
           res.on('close', () => { if (!done) { done = true; killTree(child); } });
-          child.stdin.end(promptOf(input));
+          child.stdin.end(promptOf(input, sources));
         });
       });
     },

@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { EdgeLabelRenderer, type EdgeProps, type GraphNode } from '@vue-flow/core';
 import type { Relation } from '../model';
-import { cardinality, isCode, layers, litRelation, visibleRel } from './store';
+import { cardinality, codeAt, isCode, layers, litRelation, visibleRel } from './store';
 
 const props = defineProps<EdgeProps<{ rel: Relation }>>();
 const rel = computed(() => props.data!.rel);
@@ -24,7 +24,7 @@ const geo = computed(() => {
 });
 const state = computed(() => litRelation(rel.value));
 const code = computed(() => rel.value.evidence.filter(e => isCode(e.file)));
-const evidence = computed(() => code.value.map(e => `${e.file}:${e.line}`).join('\n'));
+const evidence = computed(() => code.value.map(codeAt).join('\n'));
 </script>
 
 <template>
@@ -35,7 +35,7 @@ const evidence = computed(() => code.value.map(e => `${e.file}:${e.line}`).join(
       <div class="road-label nodrag nopan" :class="[state, rel.confidence]"
         :style="{ transform: `translate(-50%, -50%) translate(${geo.x}px, ${geo.y}px)` }">
         {{ rel.label }}<b>{{ cardinality(rel.cardinality) }}</b>
-        <code v-if="layers.code && code.length" :title="evidence">{{ code[0].file.split('/').pop() }}:{{ code[0].line }}</code>
+        <code v-if="layers.code && code.length" :title="evidence">{{ codeAt({ ...code[0], file: code[0].file.split('/').pop()! }) }}</code>
       </div>
     </EdgeLabelRenderer>
   </template>

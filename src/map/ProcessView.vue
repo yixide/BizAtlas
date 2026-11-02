@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
 import {
-  byPlace, chainOf, isCode, kindStyle, layers, moduleOfOp, objById, objColor, openOp, preOf, proc, procOp, provinceLabel, provinceModes, ui,
+  byPlace, chainOf, codeAt, isCode, kindStyle, layers, moduleOfOp, objById, objColor, openOp, preOf, proc, procOp, provinceLabel, provinceModes, ui,
 } from './store';
 
 /** 列宽固定：模块从左到右按先后排成一排，操作只在本列下方纵向展开，不挪动别的列 */
@@ -136,7 +136,7 @@ function startResize(e: PointerEvent) {
             <template v-if="shown.has(m.id)">
               <button v-for="id in m.ops" :key="id" class="pv-op" :data-op="id" :class="[stateOf(id), { inferred: proc.ops[id].confidence === 'inferred' }]"
                 :style="{ left: opBox(id).x + 'px', top: opBox(id).y + 'px', width: opBox(id).w + 'px', height: OP_H + 'px', '--c': objColor(proc.ops[id].objectId) }"
-                :data-ask-hint="`右键的这个操作：${objName(proc.ops[id].objectId)} · ${proc.ops[id].name}${(proc.ops[id].evidence ?? []).map(e => `，代码 ${e.file}:${e.line}`).join('')}`"
+                :data-ask-hint="`右键的这个操作：${objName(proc.ops[id].objectId)} · ${proc.ops[id].name}${(proc.ops[id].evidence ?? []).map(e => `，代码 ${codeAt(e)}`).join('')}`"
                 @click="pick(id)">
                 <i class="kind" :style="{ background: kindStyle(proc.ops[id].action ?? '').color }">{{ kindStyle(proc.ops[id].action ?? '').short }}</i>
                 <span class="pv-op-text">
@@ -189,7 +189,7 @@ function startResize(e: PointerEvent) {
           <p v-for="(x, k) in cur.extras" :key="k" class="muted">· {{ x }}</p>
         </div>
         <div v-if="layers.code && evidence.length" class="pv-sec col code">
-          <code v-for="e in evidence" :key="e.file + e.line">{{ e.file }}:{{ e.line }}</code>
+          <code v-for="e in evidence" :key="codeAt(e)">{{ codeAt(e) }}</code>
         </div>
         <button class="pv-open" :style="{ '--c': objColor(cur.objectId) }" @click="openOp(sel)">
           打开「{{ objName(cur.objectId) }}」卡片 →

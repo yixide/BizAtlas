@@ -14,6 +14,7 @@ const cases = [
   ['重复标识', map => { map.objects[1].id = map.objects[0].id; }],
   ['重复步骤标识', map => { map.flows[0].steps[1].id = map.flows[0].steps[0].id; }],
   ['步骤对象未列入流程', map => { map.flows[0].objectIds = []; }],
+  ['未声明的仓库', map => { map.objects[0].evidence.push({ repo: 'missing-repo', file: 'a.cs', line: 1 }); }],
 ];
 try {
   for (const [name, mutate] of cases) {
