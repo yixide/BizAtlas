@@ -1,11 +1,11 @@
 ---
 name: bizatlas
-description: 读一个业务系统的源码，生成或更新 BizAtlas 业务地图数据（.bizatlas/ 下的 map.json、functions.json、tables.json、process.json），让人能在 BizAtlas 查看器里按业务对象看懂这个项目。用户说「给这个项目画业务地图」「生成业务地图数据」「整理业务对象和关系」「更新地图」「把功能 / 表字段 / 流程图补进地图」时使用。只读源码，不连数据库、不改业务代码。
+description: 读一个业务系统的源码，生成或更新 BizAtlas 业务地图数据（.bizatlas/ 下的 map.json、functions.json、tables.json、process.json、architecture.json），让人能在 BizAtlas 查看器里按业务对象看懂这个项目。用户说「给这个项目画业务地图」「生成业务地图数据」「整理业务对象和关系」「更新地图」「把功能 / 表字段 / 流程图 / 架构图补进地图」时使用。只读源码，不连数据库、不改业务代码。
 ---
 
 # BizAtlas：从源码整理业务地图
 
-目标：产出一个 `.bizatlas/` 目录，BizAtlas 查看器加载后能回答三件事——**系统里有哪些业务对象、各自负责什么、它们怎么关联**；再往下能看每个对象的功能、表字段和操作先后。
+目标：产出一个 `.bizatlas/` 目录，BizAtlas 查看器加载后能回答三件事——**系统里有哪些业务对象、各自负责什么、它们怎么关联**；再往下能看每个对象的功能、表字段和操作先后，以及整个系统的数据从哪来、存在哪、到了谁手里（架构图）。
 
 ## BizAtlas 仓库在哪
 
@@ -115,6 +115,25 @@ npm run validate -- <输出目录>
 - `picks` 写做这个操作时要先选的上级对象；`writes` 写落到哪些表、为什么。
 - 和外部平台的交互写进 `province`（`sync` 当场对接 / `manual` 另行上报 / `none` 不交互），平台叫法用顶层 `provinceLabel`。
 - 能对上 functions.json 里某个功能的，用 `fn: { "http": "..." }` 关联，卡片和流程图就能互相跳转。
+
+## 第 6 步：architecture.json（可选）
+
+画整体架构：数据来源 → 数据存储 → 系统 → 用户 · 外部平台。节点通常只有十几个，**都画上**：关系库、时序库、缓存、消息队列、文件存储，以及设备和采集程序，不要只挑主要的。
+
+| 要找的 | 常见位置 |
+| --- | --- |
+| 数据存储 | 连接串和配置（`appsettings*.json`、`application*.yml`、`.env.example`、`docker-compose*.yml`），驱动依赖（MySQL / PostgreSQL / SQL Server 驱动，TDengine、InfluxDB、IoTDB 客户端，Redis、RabbitMQ、Kafka、MQTT、MinIO / OSS SDK） |
+| 数据来源 | MQTT 订阅主题、设备协议解析、采集定时任务、第三方回调接口 |
+| 功能块 | 后台服务、定时任务、消息消费者、对外接口分别做什么；**按职责分，不按仓库分** |
+| 用户和终端 | 前端工程（管理端、小程序、APP、大屏），菜单里的角色和权限 |
+| 外部平台 | 调用外部接口的客户端、对接配置 |
+
+- 存储写 `product`（如「MySQL 8」「TDengine」）。关系库把它存的表目录 ID 列进 `tables`；有多个库时按连接串或 ORM 配置划分。
+- 功能块的 `domains` 写它管的业务领域，界面可以从功能块跳到业务地图上的对象。
+- 连线的箭头就是数据流向，读写、用户使用系统加 `"both": true`。只连真正交换数据的两端。
+- 连接串只能证明「连了这个库」，所以存储节点可以标 `confirmed`，证据指向配置或注册代码的那一行；功能块怎么划分是 AI 归纳的，标 `inferred`。**别把连接串、账号、密码写进说明或证据摘录。**
+
+写完跑 `npm run validate -- <输出目录>`，把「架构图提示」改到没有为止。
 
 ## 用脚本生成，别手抄行号
 

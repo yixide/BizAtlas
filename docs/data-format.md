@@ -58,10 +58,11 @@ your-project/
 ├── map.json         # 必需：领域、对象、关系、表目录、流程
 ├── functions.json   # 可选：每个对象有哪些功能（接口 / 操作）
 ├── process.json     # 可选：功能之间的先后，供「流程图」视图
-└── tables.json      # 可选：表字段与字段间引用，供「数据表」页签
+├── tables.json      # 可选：表字段与字段间引用，供「数据表」页签
+└── architecture.json # 可选：数据来源、存储、功能块、用户之间的数据流，供「架构图」视图
 ```
 
-可选文件缺失时对应界面不显示或只显示基础信息；它们只做读取，不参与 `npm run validate`，修改后同样自动刷新。
+可选文件缺失时对应界面不显示或只显示基础信息；它们只做读取，修改后同样自动刷新。`npm run validate` 不拦截可选文件，只对 architecture.json 打印「架构图提示」，列出查看器会跳过的内容。
 
 ## 功能清单 functions.json（可选）
 
@@ -152,6 +153,42 @@ your-project/
 | `from` | 可选，字段来源说明，如 `entity` 表示取自实体类而非建表语句 |
 
 没有这个文件时，数据表页签只列表名。
+
+## 架构图 architecture.json（可选）
+
+从技术上看整个系统：数据从哪来、存在哪些库里、经过系统里的哪块功能、最后到了谁手里。查看器固定排成四栏，从左到右是 **数据来源 → 数据存储 → 系统 → 用户 · 外部平台**，没有内容的栏不显示。文件不存在时不显示「架构图」切换。
+
+**系统按职责分块，不按仓库分**：一个仓库可以拆成几块，几个仓库也可以合成一块。系统很简单时只写一个功能块。
+
+```json
+{
+  "system": { "name": "云杉图书馆系统", "description": "一句话说明" },
+  "sources":  [{ "id": "gate", "name": "入馆闸机", "kind": "设备", "description": "按分钟上报进出人数" }],
+  "stores":   [{ "id": "mysql", "name": "业务库", "kind": "relational", "product": "MySQL 8", "description": "全部业务数据", "tables": ["t-loan"] }],
+  "blocks":   [{ "id": "admin", "name": "馆务管理", "description": "读者办证、借还、编目", "domains": ["circulation"] }],
+  "users":    [{ "id": "librarian", "name": "馆员", "description": "办证、借还", "clients": ["Web 管理端"] }],
+  "externals":[{ "id": "citycard", "name": "城市一卡通中心", "description": "身份同步" }],
+  "links": [
+    { "from": "gate", "to": "mysql", "label": "写入入馆记录" },
+    { "from": "admin", "to": "mysql", "label": "读写", "both": true },
+    { "from": "admin", "to": "librarian", "label": "Web 管理端", "both": true }
+  ]
+}
+```
+
+每个节点和每条连线都带 `confidence`、`evidence`，规则和 map.json 相同（上面的例子为了简短省略了）。所有节点的 `id` 不能重复。
+
+| 字段 | 含义 |
+| --- | --- |
+| `system` | 可选，系统名和一句话说明，显示在系统大框和顶栏 |
+| `sources` | 数据来源：设备、采集程序、第三方推送等，`kind` 是自由文字的类别（如「设备」「采集程序」） |
+| `stores` | 数据存储。`kind` 取 `relational` 关系库、`timeseries` 时序库、`cache` 缓存、`mq` 消息队列、`search` 搜索、`file` 文件存储、`other` 其他，决定分组和颜色；`product` 写具体产品，如「MySQL 8」「TDengine」；`tables` 可选，列表目录里的表 ID，点击可以打开表字段 |
+| `blocks` | 系统里按职责分的功能块；`domains` 可选，列 map.json 里的领域 ID，点击可以跳到这些领域的对象 |
+| `users` | 用户角色；`clients` 写从哪个端用，如「Web 管理端」「微信小程序」 |
+| `externals` | 外部平台，和系统交换数据的外部系统；叫法沿用 process.json 的 `provinceLabel` |
+| `links` | 连线。**箭头方向就是数据流向**：设备上报写 `设备 → 消息队列`，功能块写库写 `功能块 → 库`，从库读写 `库 → 功能块`；双向（读写、用户使用系统）加 `"both": true`。`label` 写短语，如「写入」「订阅」「读写」「微信小程序」。两头在同一栏的连线不画 |
+
+连线可以跨栏，比如设备直接调系统接口写 `设备 → 功能块`。
 
 ## 校验与版本演进
 

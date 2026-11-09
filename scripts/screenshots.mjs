@@ -13,7 +13,8 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 860 }, dev
 const shot = async name => { await page.waitForTimeout(600); await page.screenshot({ path: `${out}/${name}.png` }); console.log(`${out}/${name}.png`); };
 const open = async name => {
   await page.locator('.list .search').fill(name);
-  await page.locator('.list .row').filter({ hasText: name }).first().click();
+  // 点行的左端：行中间是「收起」按钮，点到会把对象从地图上拿掉
+  await page.locator('.list .row').filter({ hasText: name }).first().click({ position: { x: 16, y: 12 } });
   await page.locator('.list .search').fill('');
 };
 try {
@@ -45,4 +46,10 @@ try {
   for (const m of await page.getByRole('button', { name: /个操作/ }).all()) await m.click();
   await page.locator('.pv-op').filter({ hasText: '办理借阅证' }).first().click();
   await shot('process');
+
+  // 架构图：选中读者，看数据一路从哪来
+  await page.getByRole('tab', { name: /架构图/ }).click();
+  await page.locator('.av-node.user').filter({ hasText: '读者' }).first().click();
+  await page.mouse.move(10, 810);
+  await shot('architecture');
 } finally { await browser.close(); }

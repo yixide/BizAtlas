@@ -1,0 +1,56 @@
+{
+  "system": { "name": "云杉图书馆系统", "description": "馆务、借阅、馆藏的业务管理，加上入馆闸机、阅览室传感器的设备数据" },
+  "sources": [
+    { "id": "gate", "name": "入馆闸机", "kind": "设备", "description": "刷借阅证入馆，按分钟上报进出人数", "confidence": "inferred", "evidence": [] },
+    { "id": "sensor", "name": "阅览室传感器", "kind": "设备", "description": "温湿度、座位占用，每 30 秒上报一次", "confidence": "inferred", "evidence": [] },
+    { "id": "kiosk", "name": "自助借还机", "kind": "设备", "description": "读者自助借书还书，并定时上报运行心跳", "confidence": "inferred", "evidence": [] }
+  ],
+  "stores": [
+    { "id": "mysql", "name": "业务库", "kind": "relational", "product": "MySQL 8", "description": "图书馆、读者、借阅、馆藏等全部业务数据",
+      "tables": ["t-library", "t-branch", "t-staff", "t-reader", "t-card", "t-loan", "t-reservation", "t-book", "t-copy", "t-author", "t-category", "t-shelf", "t-authorship"],
+      "confidence": "inferred", "evidence": [] },
+    { "id": "tsdb", "name": "设备时序库", "kind": "timeseries", "product": "TDengine", "description": "入馆客流、阅览室环境、借还机心跳，按设备分表",
+      "confidence": "inferred", "evidence": [] },
+    { "id": "redis", "name": "缓存", "kind": "cache", "product": "Redis", "description": "登录会话、热门书目、预约排队", "confidence": "inferred", "evidence": [] },
+    { "id": "mqtt", "name": "设备消息", "kind": "mq", "product": "EMQX（MQTT）", "description": "设备上报先进这里，再由采集服务订阅", "confidence": "inferred", "evidence": [] },
+    { "id": "oss", "name": "文件存储", "kind": "file", "product": "MinIO", "description": "图书封面、读者证件照", "confidence": "inferred", "evidence": [] }
+  ],
+  "blocks": [
+    { "id": "admin", "name": "馆务管理", "description": "图书馆、分馆、人员维护，读者办证，馆藏编目上架", "domains": ["operations", "circulation", "collection"],
+      "confidence": "inferred", "evidence": [] },
+    { "id": "service", "name": "读者服务", "description": "给小程序提供检索、预约、续借，也接自助借还机的借还请求", "domains": ["circulation", "collection"],
+      "confidence": "inferred", "evidence": [] },
+    { "id": "collect", "name": "设备采集", "description": "订阅设备消息，清洗后写入时序库", "confidence": "inferred", "evidence": [] },
+    { "id": "board", "name": "运营看板", "description": "客流统计、阅览室环境告警、设备在线率", "confidence": "inferred", "evidence": [] },
+    { "id": "citycard-sync", "name": "一卡通对接", "description": "读者办证、挂失时和城市一卡通中心同步身份", "domains": ["circulation"], "confidence": "inferred", "evidence": [] }
+  ],
+  "users": [
+    { "id": "manager", "name": "馆长", "description": "看运营数据，审批报损", "clients": ["Web 管理端"], "confidence": "inferred", "evidence": [] },
+    { "id": "librarian", "name": "馆员", "description": "办证、借还、编目上架、处理预约", "clients": ["Web 管理端"], "confidence": "inferred", "evidence": [] },
+    { "id": "reader", "name": "读者", "description": "检索图书、预约、续借，查看自己的借阅", "clients": ["微信小程序"], "confidence": "inferred", "evidence": [] }
+  ],
+  "externals": [
+    { "id": "citycard", "name": "城市一卡通中心", "description": "市民身份和一卡通状态的权威来源", "confidence": "inferred", "evidence": [] }
+  ],
+  "links": [
+    { "from": "gate", "to": "mqtt", "label": "上报客流", "confidence": "inferred", "evidence": [] },
+    { "from": "sensor", "to": "mqtt", "label": "上报环境", "confidence": "inferred", "evidence": [] },
+    { "from": "kiosk", "to": "mqtt", "label": "上报心跳", "confidence": "inferred", "evidence": [] },
+    { "from": "kiosk", "to": "service", "label": "自助借还", "both": true, "confidence": "inferred", "evidence": [] },
+    { "from": "mqtt", "to": "collect", "label": "订阅", "confidence": "inferred", "evidence": [] },
+    { "from": "collect", "to": "tsdb", "label": "写入", "confidence": "inferred", "evidence": [] },
+    { "from": "tsdb", "to": "board", "label": "读取", "confidence": "inferred", "evidence": [] },
+    { "from": "admin", "to": "mysql", "label": "读写", "both": true, "confidence": "inferred", "evidence": [] },
+    { "from": "admin", "to": "oss", "label": "上传封面", "confidence": "inferred", "evidence": [] },
+    { "from": "service", "to": "mysql", "label": "读写", "both": true, "confidence": "inferred", "evidence": [] },
+    { "from": "service", "to": "redis", "label": "读写", "both": true, "confidence": "inferred", "evidence": [] },
+    { "from": "oss", "to": "service", "label": "读取封面", "confidence": "inferred", "evidence": [] },
+    { "from": "mysql", "to": "board", "label": "读取借阅量", "confidence": "inferred", "evidence": [] },
+    { "from": "citycard-sync", "to": "mysql", "label": "回写读者", "confidence": "inferred", "evidence": [] },
+    { "from": "admin", "to": "manager", "label": "Web 管理端", "both": true, "confidence": "inferred", "evidence": [] },
+    { "from": "admin", "to": "librarian", "label": "Web 管理端", "both": true, "confidence": "inferred", "evidence": [] },
+    { "from": "board", "to": "manager", "label": "Web 管理端", "confidence": "inferred", "evidence": [] },
+    { "from": "service", "to": "reader", "label": "微信小程序", "both": true, "confidence": "inferred", "evidence": [] },
+    { "from": "citycard-sync", "to": "citycard", "label": "身份同步", "both": true, "confidence": "inferred", "evidence": [] }
+  ]
+}

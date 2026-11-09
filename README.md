@@ -62,6 +62,15 @@ AI 会先列出要删的东西请你确认：只留在本机的地图会问你�
 
 ![流程图](docs/images/process.png)
 
+**架构图**
+
+- 从技术上看整个系统，从左到右分四栏：数据来源（设备、采集程序）→ 数据存储（关系库、时序库、缓存、消息队列、文件存储）→ 系统 → 用户和外部平台。箭头就是数据流向。
+- 系统按职责分成几块功能，不按代码仓库分。
+- 点任意一个节点，顺着数据流亮起它的来龙去脉：点业务库，能看到读写它的功能块和最终用到的人；点读者，能一路看到数据从哪来。
+- 点库能列出它存的表，再点一下就打开表字段；点功能块能跳到它管的业务对象。
+
+![架构图](docs/images/architecture.png)
+
 **问 AI**（可选）
 
 - 在页面上选中一段文字，或右键点某个按钮，弹出「问 AI」；查看器把选中内容和当前所在位置交给本机的 [Codex CLI](https://github.com/openai/codex)，让它以只读方式查源码，回答这个词在代码里的真实出处和含义，并给出文件和行号。
@@ -159,7 +168,8 @@ npm run dev -- --data D:/work/my-app/.bizatlas --source D:/work/my-app
 ├── map.json         # 必需：领域、对象、关系、表目录
 ├── functions.json   # 可选：每个对象有哪些功能
 ├── tables.json      # 可选：表字段与字段间引用
-└── process.json     # 可选：操作之间的先后，供「流程图」视图
+├── process.json     # 可选：操作之间的先后，供「流程图」视图
+└── architecture.json # 可选：数据来源、存储、功能块、用户，供「架构图」视图
 ```
 
 字段说明见 [数据格式](docs/data-format.md)，`map.json` 的结构约束见 [JSON Schema](schema/map.schema.json)。可选文件缺失时，对应界面不显示或只显示基础信息。
@@ -194,7 +204,7 @@ npm run typecheck
 npm run build
 ```
 
-`validate` 检查 Schema、ID 唯一、对象与表的引用、流程覆盖、已确认信息必须带证据；不打开源文件，也不保证行号仍然准确。通过后还会给出「质量提示」：关系过多、某个对象连线过多、标签是空话、领域过大这类不影响加载但会让地图难看的问题。`npm run check:data` 验证校验器能拒绝各类坏数据。
+`validate` 检查 Schema、ID 唯一、对象与表的引用、流程覆盖、已确认信息必须带证据；不打开源文件，也不保证行号仍然准确。通过后还会给出「质量提示」：关系过多、某个对象连线过多、标签是空话、领域过大这类不影响加载但会让地图难看的问题；有 architecture.json 时，还会列出架构图里连到不存在节点、表或领域的内容。`npm run check:data` 验证校验器能拒绝各类坏数据。
 
 可选的浏览器冒烟测试（先启动对应地图，会自动使用已安装的 Edge / Chrome，没有时先 `npx playwright install chromium`）：
 
@@ -213,7 +223,7 @@ node scripts/screenshots.mjs
 ## 目录
 
 ```text
-src/map/        业务地图与流程图
+src/map/        业务地图、流程图与架构图
 scripts/        启动、校验、问 AI 服务
 schema/         map.json 的 JSON Schema
 docs/           数据格式、产品需求与用户痛点

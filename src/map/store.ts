@@ -4,6 +4,7 @@ import functionData from 'virtual:atlas-functions';
 import processData from 'virtual:atlas-process';
 import tableData from 'virtual:atlas-tables';
 import type { BusinessObject, Relation } from '../model';
+import { archNodes } from './arch';
 
 export type Source = 'page' | 'quick' | 'ext' | 'unused';
 export interface Fn {
@@ -13,7 +14,7 @@ export interface Fn {
 }
 export interface Module { name: string; fns: Fn[]; kinds: string[] }
 export type Tab = '' | 'functions' | 'relations' | 'tables' | 'code';
-export type View = 'map' | 'process';
+export type View = 'map' | 'process' | 'arch';
 
 /** 流程图：一个节点就是一个功能（具体操作），连线是功能之间的先后 */
 export interface TableUse { name: string; tableName?: string; why?: string }
@@ -187,6 +188,8 @@ export const ui = reactive({
   listOpen: true, query: '',
   /** 流程图：选中的操作、手动展开的模块 */
   pop: '', popen: [] as string[],
+  /** 架构图里选中的节点 */
+  arch: '',
   /** 数据表页签里点开看字段的表；在弹窗里一路跳过的表，用来回上一张 */
   table: '',
   tableTrail: [] as { table: string; obj: string }[],
@@ -201,15 +204,16 @@ export const actions = {
 };
 
 /** 像浏览器一样的后退：每次切视图、放大卡片、选模块/操作都记一笔 */
-export interface Snap { view: View; focus: string; tab: Tab; module: string; source: Source; op: number; pop: string; table: string; trail: TrailStop[] }
+export interface Snap { view: View; focus: string; tab: Tab; module: string; source: Source; op: number; pop: string; arch: string; table: string; trail: TrailStop[] }
 export const snap = (): Snap => ({
-  view: ui.view, focus: ui.focus, tab: ui.tab, module: ui.module, source: ui.source, op: ui.op, pop: ui.pop, table: ui.table,
+  view: ui.view, focus: ui.focus, tab: ui.tab, module: ui.module, source: ui.source, op: ui.op, pop: ui.pop, arch: ui.arch, table: ui.table,
   trail: ui.trail.map(s => ({ ...s })),
 });
 export const history = reactive<Snap[]>([]);
 /** 后退按钮上写着会回到哪 */
 export function snapLabel(s: Snap) {
   if (s.view === 'process') return procOp(s.pop) ? `流程图 · ${procOp(s.pop)!.name}` : '流程图';
+  if (s.view === 'arch') return archNodes.has(s.arch) ? `架构图 · ${archNodes.get(s.arch)!.item.name}` : '架构图';
   if (!s.focus) return '全图';
   const name = objById.get(s.focus)?.name ?? s.focus;
   return s.module ? `${name} › ${s.module}` : name;

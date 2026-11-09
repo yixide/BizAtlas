@@ -10,6 +10,10 @@ declare module 'virtual:atlas-tables' {
   const tables: Record<string, import('./map/store').TableDef>;
   export default tables;
 }
+declare module 'virtual:atlas-architecture' {
+  const architecture: import('./map/arch').Architecture;
+  export default architecture;
+}
 declare module 'virtual:atlas-projects' {
   const projects: { current: string; list: { id: string; name: string }[] };
   export default projects;

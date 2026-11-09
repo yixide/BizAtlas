@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
 
@@ -49,6 +49,42 @@ export function readMap(directory) {
   inspect(map);
   for (const id of Object.keys(map.layout?.positions ?? {})) check(map.objects, id, '布局');
   return map;
+}
+
+/** 架构图（可选的 architecture.json）里查看器会悄悄丢掉的东西：重名、连到不存在的节点、指向不存在的表和领域 */
+export function lintArchitecture(directory, map) {
+  const file = resolve(directory, 'architecture.json');
+  if (!existsSync(file)) return { found: false, hints: [] };
+  const a = JSON.parse(readFileSync(file, 'utf8'));
+  const out = [];
+  const layers = { sources: '数据来源', stores: '数据存储', blocks: '功能块', users: '用户', externals: '外部平台' };
+  const ids = new Map();
+  for (const [key, name] of Object.entries(layers)) {
+    for (const n of a[key] ?? []) {
+      if (!n.id || !n.name) { out.push(`${name}里有一项缺 id 或 name`); continue; }
+      if (ids.has(n.id)) out.push(`架构节点 id 重复：${n.id}（${ids.get(n.id)} 和 ${name}）`);
+      ids.set(n.id, name);
+      if (n.confidence === 'confirmed' && !(n.evidence ?? []).length) out.push(`「${n.name}」标了已确认却没有证据`);
+    }
+  }
+  const kinds = ['relational', 'timeseries', 'cache', 'mq', 'search', 'file', 'other'];
+  for (const s of a.stores ?? []) {
+    if (!kinds.includes(s.kind)) out.push(`存储「${s.name}」的 kind 是「${s.kind}」，只能是 ${kinds.join(' / ')}，否则按「其他存储」显示`);
+    (s.tables ?? []).filter(t => !map.tables.some(x => x.id === t)).forEach(t => out.push(`存储「${s.name}」列了表目录里没有的表：${t}`));
+  }
+  for (const b of a.blocks ?? []) {
+    (b.domains ?? []).filter(d => !map.domains.some(x => x.id === d)).forEach(d => out.push(`功能块「${b.name}」列了不存在的领域：${d}`));
+  }
+  const col = id => ({ 数据来源: 0, 数据存储: 1, 功能块: 2, 用户: 3, 外部平台: 3 })[ids.get(id)];
+  for (const l of a.links ?? []) {
+    const bad = [l.from, l.to].filter(id => !ids.has(id));
+    if (bad.length) out.push(`连线 ${l.from} → ${l.to} 连到了不存在的节点：${bad.join('、')}，不会画出来`);
+    else if (col(l.from) === col(l.to)) out.push(`连线 ${l.from} → ${l.to} 两头在同一栏，不会画出来`);
+  }
+  const linked = new Set((a.links ?? []).flatMap(l => [l.from, l.to]));
+  const lonely = [...ids.keys()].filter(id => !linked.has(id));
+  if (lonely.length) out.push(`${lonely.length} 个架构节点没有任何连线（如 ${lonely[0]}）：补上它和谁交换数据，或者删掉`);
+  return { found: true, nodes: ids.size, links: (a.links ?? []).length, hints: out };
 }
 
 /** 格式对但读起来乱的地方：不拦着加载，只提示整理的人回头改 */

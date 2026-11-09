@@ -10,6 +10,8 @@ import RoadEdge from './RoadEdge.vue';
 import BundleEdge from './BundleEdge.vue';
 import ListPanel from './ListPanel.vue';
 import ProcessView from './ProcessView.vue';
+import ArchView from './ArchView.vue';
+import { hasArch } from './arch';
 import AskAi from './AskAi.vue';
 import { actions, bundles, colorOf, hidden, history, isHidden, layers, map, moduleOfOp, objById, snap, snapLabel, ui, type OpenOpts } from './store';
 import { boundsOf, pushAway, seedPositions, type Size, type XY } from './layout';
@@ -160,7 +162,7 @@ async function back() {
   if (!s) return;
   restoring = true;
   const from = ui.focus;
-  Object.assign(ui, { view: s.view, tab: s.tab, module: s.module, source: s.source, op: s.op, pop: s.pop, table: s.table, trail: s.trail });
+  Object.assign(ui, { view: s.view, tab: s.tab, module: s.module, source: s.source, op: s.op, pop: s.pop, arch: s.arch, table: s.table, trail: s.trail });
   if (s.focus && s.focus !== from) focusOn(s.focus, from);
   else if (!s.focus && from) close();
   await nextTick();
@@ -217,6 +219,10 @@ const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Escape') { if (ui.pop) ui.pop = ''; else ui.view = 'map'; }
     return;
   }
+  if (ui.view === 'arch') {
+    if (e.key === 'Escape') { if (ui.arch) ui.arch = ''; else ui.view = 'map'; }
+    return;
+  }
   if (e.key === 'Escape' && ui.focus) close();
 };
 /** 鼠标侧键「后退」 */
@@ -240,6 +246,7 @@ const layerDefs: { key: keyof typeof layers; label: string; icon: string }[] = [
 const miniColor = (n: GraphNode) => (n.type === 'region' ? 'transparent' : colorOf(objById.get(n.id)?.domainId ?? ''));
 /** 没有流程数据就不显示「流程图」切换 */
 const hasProcess = moduleOfOp.size > 0;
+const viewHints = { map: '对象、关系、功能全貌', process: '功能之间的先后：做了之后别人会用到的操作', arch: '数据从哪来、存在哪、经过哪块功能、到了谁手里' };
 </script>
 
 <template>
@@ -248,15 +255,16 @@ const hasProcess = moduleOfOp.size > 0;
     <main class="stage">
       <header class="viewbar">
         <button v-if="!ui.listOpen" class="icon" title="展开列表" @click="ui.listOpen = true">☰</button>
-        <div v-if="hasProcess" class="views" role="tablist">
+        <div v-if="hasProcess || hasArch" class="views" role="tablist">
           <button role="tab" :class="{ on: ui.view === 'map' }" @click="ui.view = 'map'"><i>◈</i>地图</button>
-          <button role="tab" :class="{ on: ui.view === 'process' }" @click="ui.view = 'process'"><i>⟿</i>流程图</button>
+          <button v-if="hasProcess" role="tab" :class="{ on: ui.view === 'process' }" @click="ui.view = 'process'"><i>⟿</i>流程图</button>
+          <button v-if="hasArch" role="tab" :class="{ on: ui.view === 'arch' }" @click="ui.view = 'arch'"><i>▤</i>架构图</button>
         </div>
         <!-- 用户一开始不知道快捷键：给一个显眼的后退按钮，旁边小字带上快捷键 -->
         <button class="go-back" :disabled="!backTo" :title="backTo ? `后退到：${backTo}（Backspace / Alt+← / 鼠标侧键）` : '还没有可后退的操作'" @click="back()">
           ← 后退<span v-if="backTo" class="go-back-to">{{ backTo }}</span><kbd>⌫</kbd>
         </button>
-        <span class="viewbar-hint">{{ ui.view === 'process' ? '功能之间的先后：做了之后别人会用到的操作' : '对象、关系、功能全貌' }}</span>
+        <span class="viewbar-hint">{{ viewHints[ui.view] }}</span>
       </header>
       <!-- 流程图盖在地图上面，地图一直挂着：切回来时镜头、放大的卡片都还在 -->
       <div class="stage-body">
@@ -289,6 +297,7 @@ const hasProcess = moduleOfOp.size > 0;
           <div v-if="!ui.focus" class="hint">点对象放大 · 拖动对象换位置 · 拖空白处平移 · 滚轮缩放 · Esc 返回</div>
         </div>
         <ProcessView v-if="ui.view === 'process'" />
+        <ArchView v-if="ui.view === 'arch'" />
       </div>
     </main>
     <AskAi />

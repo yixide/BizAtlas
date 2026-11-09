@@ -26,7 +26,8 @@ try {
   // 搜索并从列表打开对象卡片
   const object = map.objects.find(o => o.importance === 'core') || map.objects[0];
   await page.locator('.list .search').fill(object.name);
-  await page.locator('.list .row').filter({ hasText: object.name }).first().click();
+  // 点行的左端：行中间是「收起」按钮
+  await page.locator('.list .row').filter({ hasText: object.name }).first().click({ position: { x: 16, y: 12 } });
   await expect(page.locator('.district .d-title h2')).toContainText(object.name);
   await page.screenshot({ path: join(output, 'card.png'), animations: 'disabled' });
 
@@ -49,8 +50,22 @@ try {
     await page.getByRole('tab', { name: /地图/ }).click();
   }
 
+  // 架构图：点一个存储，详情面板列出连到它的节点
+  if (existsSync(resolve(directory, 'architecture.json'))) {
+    await page.getByRole('tab', { name: /架构图/ }).click();
+    const node = page.locator('.av-node.store').first();
+    await expect(node).toBeVisible();
+    await node.click();
+    await expect(page.locator('.av .pv-detail h3')).toBeVisible();
+    await expect(page.locator('.av-node.on').first()).toBeVisible();
+    await page.screenshot({ path: join(output, 'architecture.png'), animations: 'disabled' });
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.av')).toHaveCount(0);
+  }
+
   expect(errors).toEqual([]);
   const denied = await page.request.get(baseURL + '/.local/projects.json');
   expect(denied.status()).toBe(403);
-  console.log(`浏览器验收通过：地图绘制、搜索、打开对象卡片、切换页签、流程图；截图目录 ${output}`);
+  console.log(`浏览器验收通过：地图绘制、搜索、打开对象卡片、切换页签、流程图、架构图；截图目录 ${output}`);
 } finally { await browser.close(); }

@@ -52,7 +52,7 @@ export function pickProject(id) {
   use(list.find(p => p.id === id) ?? list.find(p => p.id === last) ?? list[0]);
 }
 
-const virtualIds = ['\0virtual:atlas-map', '\0virtual:atlas-functions', '\0virtual:atlas-process', '\0virtual:atlas-tables', '\0virtual:atlas-projects'];
+const virtualIds = ['\0virtual:atlas-map', '\0virtual:atlas-functions', '\0virtual:atlas-process', '\0virtual:atlas-tables', '\0virtual:atlas-architecture', '\0virtual:atlas-projects'];
 
 export function projectsPlugin() {
   return {
