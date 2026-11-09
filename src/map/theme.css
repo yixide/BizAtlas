@@ -320,7 +320,8 @@ button.chip:hover { border-color: var(--ink-3); background: var(--panel-solid); 
 .pv-reset { padding: 4px 11px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel-solid); color: var(--ink-2); font-size: 12px; }
 .pv-reset:hover { border-color: var(--ink-3); color: var(--ink); }
 .pv-main { flex: 1; min-height: 0; display: flex; }
-.pv-scroll { flex: 1; min-width: 0; overflow: auto; background-image: radial-gradient(var(--dot) 1.2px, transparent 1.3px); background-size: 22px 22px; }
+.pv-scroll { flex: 1; min-width: 0; overflow: auto; background-image: radial-gradient(var(--dot) 1.2px, transparent 1.3px); background-size: 22px 22px; cursor: grab; }
+.pv-scroll.panning, .pv-scroll.panning * { cursor: grabbing !important; user-select: none; }
 .pv-canvas { position: relative; margin: 0 auto; transition: height .25s; }
 .pv-svg { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
 .pv-empty { margin: 60px auto; text-align: center; color: var(--ink-3); }
